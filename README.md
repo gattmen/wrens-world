@@ -4,13 +4,7 @@ A small browser game for Wren, currently built as one self-contained HTML file.
 
 ## Open In VS Code
 
-From Terminal:
-
-```bash
-code /Users/andrewgattas/Documents/Codex/2026-04-22-i-want-to-create-a-project/wrens-world
-```
-
-Or in VS Code: File -> Open Folder -> choose this `wrens-world` folder.
+In VS Code: File -> Open Folder -> choose this `wrens-world` folder.
 
 ## Play The Game
 
