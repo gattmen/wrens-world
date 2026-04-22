@@ -1,0 +1,1707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Wren's World</title>
+<style>
+  :root {
+    --wren-purple: #b794d4;
+    --wren-pink:   #f4b6c2;
+    --wren-cream:  #fff8f0;
+    --wren-sage:   #c8e6c9;
+    --wren-sky:    #bde0fe;
+    --wren-sun:    #ffd97d;
+    --wren-soft:   #7d6e87;
+    --wren-white:  #ffffff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; user-select: none; }
+  body { font-family: "Quicksand","Comic Sans MS",cursive; background: var(--wren-cream); min-height: 100vh; overflow-x: hidden; }
+  #app { max-width: 480px; margin: 0 auto; min-height: 100vh; position: relative; }
+
+  /* HOME */
+  #home-screen { display: flex; flex-direction: column; min-height: 100vh; background: var(--wren-cream); }
+  .home-header { background: linear-gradient(135deg, var(--wren-purple), var(--wren-pink)); padding: 20px 20px 24px; border-radius: 0 0 32px 32px; box-shadow: 0 4px 16px rgba(183,148,212,0.3); position: relative; }
+  .home-header h1 { font-size: 2rem; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.15); font-weight: 800; }
+  .header-tee { position: absolute; right: 16px; top: 10px; }
+  .stars-row { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 10px; }
+  .star-dot { font-size: 1rem; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2)); }
+  .home-body { padding: 16px; flex: 1; }
+  /* 6-card grid: 2 columns, 3 rows — no wide card needed */
+  .game-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .game-card { background: white; border-radius: 24px; padding: 18px 12px; text-align: center; box-shadow: 0 4px 14px rgba(0,0,0,0.08); cursor: pointer; transition: transform 0.15s ease, box-shadow 0.15s ease; min-height: 160px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; border: 3px solid transparent; }
+  .game-card:active { transform: scale(0.96); }
+  .game-card .card-emoji { font-size: 2.4rem; }
+  .game-card .card-title { font-size: 1rem; font-weight: 700; color: var(--wren-soft); }
+  .game-card .card-stars { font-size: 1rem; letter-spacing: 2px; }
+
+  /* GAME SCREEN */
+  #game-screen { display: none; flex-direction: column; min-height: 100vh; }
+  .game-topbar { display: flex; align-items: center; padding: 12px 16px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.06); position: sticky; top: 0; z-index: 10; gap: 8px; }
+  .home-btn { width: 48px; height: 48px; border-radius: 50%; background: var(--wren-cream); border: 2px solid var(--wren-purple); font-size: 1.4rem; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: transform 0.1s; }
+  .home-btn:active { transform: scale(0.9); }
+  .game-title-bar { flex: 1; text-align: center; font-size: 1.1rem; font-weight: 700; color: var(--wren-soft); }
+  #game-container { flex: 1; overflow-y: auto; padding: 16px; }
+
+  /* OVERLAY */
+  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 100; }
+  .overlay-card { background: white; border-radius: 28px; padding: 32px 28px; text-align: center; max-width: 320px; width: 90%; box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
+  .overlay-card h2 { font-size: 1.6rem; margin-bottom: 20px; color: var(--wren-soft); }
+  .overlay-btns { display: flex; gap: 12px; justify-content: center; }
+  .btn { padding: 14px 24px; border-radius: 50px; border: none; font-family: inherit; font-size: 1rem; font-weight: 700; cursor: pointer; min-width: 100px; min-height: 48px; transition: transform 0.1s; }
+  .btn:active { transform: scale(0.96); }
+  .btn-primary { background: var(--wren-purple); color: white; }
+  .btn-secondary { background: var(--wren-sage); color: var(--wren-soft); }
+
+  /* CONFETTI */
+  .confetti-piece { position: fixed; font-size: 1.8rem; pointer-events: none; z-index: 200; animation: confettiFall 2s ease-in forwards; }
+  @keyframes confettiFall { 0% { transform: translateY(-40px) rotate(0deg); opacity: 1; } 100% { transform: translateY(105vh) rotate(360deg); opacity: 0; } }
+  @keyframes teeBounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+  @keyframes teeWiggle { 0%,100% { transform: rotate(0deg); } 25% { transform: rotate(-8deg); } 75% { transform: rotate(8deg); } }
+  @keyframes bloomIn { 0% { transform: scale(1); } 50% { transform: scale(1.3); } 100% { transform: scale(1); } }
+  @keyframes leafGrow { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+  .tee-bounce { animation: teeBounce 0.5s ease 3; }
+  .tee-wiggle { animation: teeWiggle 0.4s ease 3; }
+
+  /* SETTINGS */
+  .settings-panel { background: white; border-radius: 28px; padding: 24px; margin-top: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+  .settings-panel h3 { font-size: 1.1rem; color: var(--wren-soft); margin-bottom: 16px; }
+  .settings-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .settings-label { font-size: 0.95rem; color: var(--wren-soft); }
+  .toggle { width: 52px; height: 28px; background: #ddd; border-radius: 14px; position: relative; cursor: pointer; transition: background 0.2s; }
+  .toggle.on { background: var(--wren-purple); }
+  .toggle::after { content: ''; position: absolute; width: 22px; height: 22px; background: white; border-radius: 50%; top: 3px; left: 3px; transition: left 0.2s; box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
+  .toggle.on::after { left: 27px; }
+  .btn-danger { background: #ffb3b3; color: #c0392b; }
+
+  /* PROGRESS */
+  .progress-dots { display: flex; justify-content: center; gap: 8px; margin-bottom: 12px; }
+  .progress-dot { width: 14px; height: 14px; border-radius: 50%; background: #e0e0e0; transition: background 0.3s; }
+  .progress-dot.done { background: var(--wren-purple); }
+
+  /* LETTER FOREST */
+  .forest-bg { background: linear-gradient(180deg, #e8f5e9 0%, #c8e6c9 100%); border-radius: 24px; padding: 20px; min-height: 480px; }
+  .letter-display { text-align: center; margin-bottom: 16px; }
+  .big-letter { font-size: 5rem; font-weight: 900; color: var(--wren-soft); line-height: 1; text-shadow: 0 3px 8px rgba(0,0,0,0.1); }
+  .letter-word { font-size: 1.2rem; color: var(--wren-soft); margin-top: 6px; }
+  .letter-choices { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; margin-top: 14px; }
+  .letter-btn { width: 120px; height: 120px; border-radius: 50%; background: var(--wren-cream); border: 5px solid #c8a96e; box-shadow: 0 4px 0 #a07040, inset 0 1px 3px rgba(255,255,255,0.6); font-size: 3.5rem; font-weight: 900; cursor: pointer; transition: transform 0.1s; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .letter-btn:active { transform: scale(0.92); }
+  .trees-row { display: flex; justify-content: space-around; margin-top: 16px; }
+
+  /* NUMBER KINGDOM */
+  .kingdom-bg { background: linear-gradient(180deg, #e3f4ff 0%, #bde0fe 100%); border-radius: 24px; padding: 20px; min-height: 480px; }
+  .target-display { text-align: center; margin-bottom: 8px; }
+  .target-number { font-size: 5rem; font-weight: 900; color: var(--wren-soft); line-height: 1; }
+  .target-label { font-size: 1rem; color: var(--wren-soft); }
+  .count-display { text-align: center; font-size: 2rem; font-weight: 800; color: var(--wren-purple); margin: 8px 0; }
+  .toys-area { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin: 12px 0; }
+  .toy-btn { width: 80px; height: 80px; border-radius: 50%; background: white; border: 3px solid var(--wren-sky); box-shadow: 0 3px 8px rgba(0,0,0,0.1); font-size: 2.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.1s; }
+  .toy-btn:active { transform: scale(0.9); }
+  .toy-btn.counted { background: var(--wren-sage); border-color: #8bc89b; }
+
+  /* FEELINGS GARDEN */
+  .garden-bg { background: linear-gradient(180deg, #fff0f5 0%, #f4b6c2 100%); border-radius: 24px; padding: 20px; min-height: 480px; }
+  .face-area { display: flex; justify-content: center; margin: 12px 0 20px; }
+  .feeling-choices { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+  .feeling-btn { padding: 14px 18px; border-radius: 20px; background: white; border: 3px solid var(--wren-pink); font-size: 1.2rem; font-weight: 700; color: var(--wren-soft); cursor: pointer; min-width: 130px; min-height: 60px; transition: transform 0.1s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .feeling-btn:active { transform: scale(0.95); }
+  .help-choices { display: flex; flex-direction: column; gap: 12px; align-items: center; }
+  .help-btn { padding: 16px 28px; border-radius: 20px; background: white; border: 3px solid var(--wren-sage); font-size: 1.05rem; font-weight: 700; color: var(--wren-soft); cursor: pointer; min-width: 260px; min-height: 60px; transition: transform 0.1s; }
+  .help-btn:active { transform: scale(0.95); }
+
+  /* COLOR GARDEN (enhanced — 10 colors, 3-column grid) */
+  .color-garden-bg { background: linear-gradient(180deg, #f9fff9 0%, var(--wren-sage) 100%); border-radius: 24px; padding: 20px; min-height: 480px; }
+
+  /* Enhanced garden card wrapper */
+  .wg-card {
+    background: rgba(255,255,255,0.75);
+    border: 2px solid rgba(183,148,212,0.25);
+    border-radius: 20px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+  }
+  .wg-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+  .wg-header h1 { font-size: 1.2rem; font-weight: 800; color: var(--wren-soft); margin-bottom: 2px; }
+  .wg-header p { font-size: 0.85rem; color: var(--wren-soft); opacity: 0.7; font-weight: normal; }
+  .tee-buddy { font-size: 2.2rem; }
+  @keyframes teeDance {
+    0%,100% { transform: rotate(0deg) scale(1); }
+    25%      { transform: rotate(-15deg) scale(1.2); }
+    75%      { transform: rotate(15deg) scale(1.2); }
+  }
+  .tee-buddy.wag { animation: teeDance 0.5s ease; }
+
+  .garden-prompt-card {
+    background: rgba(255,255,255,0.6);
+    border: 1px solid rgba(183,148,212,0.2);
+    border-radius: 14px;
+    padding: 10px 14px;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  .garden-label { font-size: 0.7rem; letter-spacing: 2px; color: var(--wren-soft); opacity: 0.6; text-transform: uppercase; margin-bottom: 4px; }
+  .garden-question { font-size: 1.5rem; font-weight: 900; color: var(--wren-soft); min-height: 1.4em; }
+  .garden-subtext { font-size: 0.85rem; color: var(--wren-soft); opacity: 0.6; margin-top: 3px; }
+
+  .garden-controls { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 10px; }
+  .wg-pill-btn {
+    font-size: 0.9rem; font-weight: 700;
+    background: rgba(183,148,212,0.2); border: 2px solid rgba(183,148,212,0.4);
+    border-radius: 999px; padding: 8px 16px; cursor: pointer; color: var(--wren-soft);
+    transition: all 0.15s; font-family: inherit; min-height: 44px;
+  }
+  .wg-pill-btn:active { transform: scale(0.94); }
+  .wg-pill-btn.on { background: rgba(139,200,155,0.4); border-color: #66bb6a; color: #2e7d32; }
+
+  /* 3-column color grid */
+  .garden-color-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .garden-color-btn {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 3px; border-radius: 16px; border: 4px solid rgba(255,255,255,0.35);
+    padding: 10px 4px; cursor: pointer;
+    transition: transform 0.12s, border-color 0.15s, box-shadow 0.15s;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.18);
+    min-height: 80px; font-family: inherit;
+  }
+  .garden-color-btn:active { transform: scale(0.93); }
+  .garden-color-btn.rojo     { background: #e53935; }
+  .garden-color-btn.azul     { background: #1e88e5; }
+  .garden-color-btn.amarillo { background: #fdd835; }
+  .garden-color-btn.verde    { background: #43a047; }
+  .garden-color-btn.rosa     { background: #e91e8c; }
+  .garden-color-btn.morado   { background: #8e24aa; }
+  .garden-color-btn.naranja  { background: #fb8c00; }
+  .garden-color-btn.negro    { background: #263238; }
+  .garden-color-btn.blanco   { background: #f0f0f0; }
+  .garden-color-btn.marron   { background: #6d4c41; }
+  .garden-color-btn.correct  {
+    border-color: #66bb6a !important; border-width: 5px !important;
+    box-shadow: 0 0 22px rgba(102,187,106,0.7) !important;
+    animation: correctPulse 0.5s ease;
+  }
+  .garden-color-btn.wrong {
+    border-color: rgba(239,83,80,0.9) !important; border-width: 5px !important;
+    animation: shake 0.4s ease;
+  }
+  .gcb-flower { font-size: 1.4rem; line-height: 1; }
+  .gcb-name { font-size: 0.8rem; font-weight: 800; color: white; text-shadow: 0 1px 3px rgba(0,0,0,0.5); letter-spacing: 0.5px; }
+  .gcb-name.dark-text { color: rgba(0,0,0,0.65); text-shadow: none; }
+
+  .garden-progress { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .garden-progress-label { font-size: 0.7rem; letter-spacing: 2px; color: var(--wren-soft); opacity: 0.5; text-transform: uppercase; }
+  .garden-stars { font-size: 1.3rem; letter-spacing: 3px; min-height: 1.4em; text-align: center; }
+
+  @keyframes correctPulse {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.1); }
+    100% { transform: scale(1); }
+  }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20%     { transform: translateX(-8px); }
+    60%     { transform: translateX(8px); }
+  }
+
+  /* ALPHABET GAME */
+  .alphabet-bg {
+    background: linear-gradient(180deg, #f5eeff 0%, #e8d5f5 100%);
+    border-radius: 24px; padding: 16px; min-height: 480px;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+  }
+  /* Difficulty mode bar inside alphabet game */
+  .alpha-mode-bar { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  .alpha-mode-btn {
+    font-size: 0.85rem; font-weight: 700;
+    background: rgba(183,148,212,0.15); border: 2px solid rgba(183,148,212,0.3);
+    border-radius: 999px; padding: 6px 16px; cursor: pointer;
+    color: var(--wren-soft); transition: all 0.2s; font-family: inherit; min-height: 40px;
+  }
+  .alpha-mode-btn.active { background: rgba(183,148,212,0.45); border-color: var(--wren-purple); color: var(--wren-purple); }
+  .alpha-mode-btn:active { transform: scale(0.93); }
+  .alpha-mode-label { font-size: 0.78rem; color: var(--wren-soft); opacity: 0.6; text-align: center; min-height: 1em; }
+
+  /* Card area */
+  .alpha-card {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 6px; flex: 1; width: 100%; min-height: 0;
+  }
+  .alpha-letter-display {
+    font-size: 6rem; font-weight: 900; line-height: 1;
+    color: var(--wren-purple); text-shadow: 0 3px 12px rgba(183,148,212,0.5);
+    animation: floatAlpha 3s ease-in-out infinite;
+  }
+  @keyframes floatAlpha {
+    0%,100% { transform: translateY(0) rotate(-2deg); }
+    50%      { transform: translateY(-10px) rotate(2deg); }
+  }
+  .alpha-emoji-display { font-size: 3rem; line-height: 1; }
+  .alpha-word-display { font-size: 1rem; letter-spacing: 3px; text-transform: uppercase; color: var(--wren-soft); opacity: 0.75; }
+  .alpha-hard-icon { font-size: 4rem; display: none; }
+  .alpha-prompt { font-size: 1rem; color: var(--wren-soft); font-weight: 700; text-align: center; min-height: 1.4em; }
+
+  /* Tip button */
+  .alpha-tip-btn {
+    font-size: 1rem; font-weight: 700;
+    background: rgba(183,148,212,0.2); border: 2px solid rgba(183,148,212,0.4);
+    border-radius: 16px; padding: 8px 20px; cursor: pointer; color: var(--wren-soft);
+    font-family: inherit; min-height: 44px;
+  }
+  .alpha-tip-btn:active { transform: scale(0.93); }
+
+  /* Choice buttons (2×2 grid) */
+  .alpha-choices {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px; width: 100%; max-width: 320px;
+  }
+  .alpha-choice-btn {
+    font-size: 2.6rem; font-weight: 900; text-align: center;
+    padding: 16px 0; border-radius: 22px;
+    border: 4px solid rgba(183,148,212,0.3); background: rgba(255,255,255,0.7);
+    cursor: pointer; transition: transform 0.12s, background 0.12s;
+    min-height: 88px; font-family: inherit;
+  }
+  .alpha-choice-btn:active { transform: scale(0.94); }
+  .alpha-choice-btn.correct { background: rgba(139,200,155,0.45) !important; border-color: #66bb6a !important; animation: correctPulse 0.5s ease; }
+  .alpha-choice-btn.wrong   { background: rgba(239,83,80,0.2) !important; border-color: rgba(239,83,80,0.5) !important; animation: shake 0.4s ease; }
+
+  /* MUSIC MAKER */
+  .music-bg { background: linear-gradient(180deg, #fffbf0 0%, #ffd97d44 100%); border-radius: 24px; padding: 16px; min-height: 480px; display: flex; flex-direction: column; }
+  .piano-area { display: flex; gap: 8px; justify-content: center; flex: 1; align-items: stretch; margin: 12px 0; }
+  .piano-key { flex: 1; min-width: 56px; border-radius: 16px; border: none; cursor: pointer; box-shadow: 0 5px 0 rgba(0,0,0,0.18), inset 0 1px 3px rgba(255,255,255,0.4); transition: transform 0.08s; min-height: 200px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 12px; font-size: 1.3rem; font-weight: 800; color: rgba(0,0,0,0.3); }
+  .piano-key.pressed { transform: scaleY(0.95) translateY(3px); box-shadow: 0 2px 0 rgba(0,0,0,0.18); }
+  .piano-key.highlight { box-shadow: 0 0 0 4px white, 0 0 0 7px var(--wren-purple), 0 5px 0 rgba(0,0,0,0.18); }
+  .music-feedback { text-align: center; font-size: 1.1rem; font-weight: 700; color: var(--wren-soft); min-height: 32px; margin: 6px 0; }
+  .song-mode-btn { display: none; margin: 8px auto; padding: 12px 28px; border-radius: 50px; background: var(--wren-purple); color: white; border: none; font-family: inherit; font-size: 1rem; font-weight: 700; cursor: pointer; min-height: 48px; }
+  .done-home-btn { display: block; margin: 8px auto; padding: 12px 32px; border-radius: 50px; background: var(--wren-sage); color: var(--wren-soft); border: none; font-family: inherit; font-size: 1rem; font-weight: 700; cursor: pointer; min-height: 48px; }
+
+  /* FLOWER */
+  .flower-choices { display: flex; flex-wrap: wrap; justify-content: center; gap: 18px; margin: 16px 0; }
+  .flower-btn { width: 110px; height: 110px; border-radius: 50%; border: 4px solid rgba(255,255,255,0.7); box-shadow: 0 4px 14px rgba(0,0,0,0.15); font-size: 2.6rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.15s; }
+  .flower-btn:active { transform: scale(0.92); }
+  .flower-btn.bloom { animation: bloomIn 0.5s ease; }
+
+  /* TOAST */
+  .feedback-toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: white; border-radius: 20px; padding: 10px 22px; font-size: 1.1rem; font-weight: 700; color: var(--wren-soft); box-shadow: 0 4px 16px rgba(0,0,0,0.15); z-index: 150; pointer-events: none; animation: toastPop 1.8s ease forwards; }
+  @keyframes toastPop { 0% { opacity:0; transform:translateX(-50%) translateY(10px); } 15% { opacity:1; transform:translateX(-50%) translateY(0); } 75% { opacity:1; } 100% { opacity:0; transform:translateX(-50%) translateY(-10px); } }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="home-screen">
+    <div class="home-header">
+      <h1 id="home-greeting">Hi Wren! &#x1F49C;</h1>
+      <div class="stars-row" id="total-stars-row"></div>
+      <div class="header-tee" id="header-tee"></div>
+    </div>
+    <div class="home-body">
+      <div class="game-grid" id="game-grid"></div>
+      <div id="settings-area"></div>
+    </div>
+  </div>
+  <div id="game-screen">
+    <div class="game-topbar">
+      <button class="home-btn" id="home-btn" aria-label="Go home">&#x1F3E0;</button>
+      <div class="game-title-bar" id="game-title-bar"></div>
+      <div style="width:48px"></div>
+    </div>
+    <div id="game-container"></div>
+  </div>
+</div>
+
+<script>
+// ── AUDIO ──────────────────────────────────────
+let _ac = null;
+function getAudioContext() {
+  if (!_ac) _ac = new (window.AudioContext || window.webkitAudioContext)();
+  if (_ac.state === 'suspended') _ac.resume();
+  return _ac;
+}
+
+function chime(type) {
+  try {
+    const ac = getAudioContext();
+    const now = ac.currentTime;
+    if (type === 'correct') {
+      [[440,0],[554,0.06],[659,0.12]].forEach(([f,d]) => {
+        const o = ac.createOscillator(), g = ac.createGain();
+        o.connect(g); g.connect(ac.destination);
+        o.type = 'sine'; o.frequency.value = f;
+        g.gain.setValueAtTime(0.22, now+d);
+        g.gain.exponentialRampToValueAtTime(0.001, now+d+0.3);
+        o.start(now+d); o.stop(now+d+0.35);
+      });
+    } else if (type === 'wrong') {
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.connect(g); g.connect(ac.destination);
+      o.type = 'sine'; o.frequency.value = 200;
+      g.gain.setValueAtTime(0.12, now);
+      g.gain.exponentialRampToValueAtTime(0.001, now+0.08);
+      o.start(now); o.stop(now+0.1);
+    } else if (type === 'celebrate') {
+      [261,294,330,392,440].forEach((f,i) => {
+        const o = ac.createOscillator(), g = ac.createGain();
+        o.connect(g); g.connect(ac.destination);
+        o.type = 'sine'; o.frequency.value = f;
+        const t = now + i*0.13;
+        g.gain.setValueAtTime(0.22, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t+0.25);
+        o.start(t); o.stop(t+0.3);
+      });
+    }
+  } catch(e) {}
+}
+
+function playNote(freq) {
+  try {
+    const ac = getAudioContext(), now = ac.currentTime;
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.connect(g); g.connect(ac.destination);
+    o.type = 'sine'; o.frequency.value = freq;
+    g.gain.setValueAtTime(0.28, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now+0.5);
+    o.start(now); o.stop(now+0.55);
+  } catch(e) {}
+}
+
+// ── SPEECH ────────────────────────────────────
+function speak(text, lang, rate) {
+  lang = lang || 'en-US'; rate = rate || 0.9;
+  if (!state.settings.speechEnabled) return;
+  try {
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.rate = rate; u.pitch = 1.1; u.volume = 1; u.lang = lang;
+    if (lang.startsWith('es')) {
+      const vs = speechSynthesis.getVoices();
+      const pref = ['Paulina','Monica','Juan'];
+      let v = null;
+      for (const n of pref) { v = vs.find(x => x.name.includes(n)); if (v) break; }
+      if (!v) v = vs.find(x => x.lang && x.lang.startsWith('es') && x.localService);
+      if (!v) v = vs.find(x => x.lang && x.lang.startsWith('es'));
+      if (v) u.voice = v;
+    } else if (state.settings.voiceName) {
+      const vs = speechSynthesis.getVoices();
+      const v = vs.find(x => x.name === state.settings.voiceName);
+      if (v) u.voice = v;
+    }
+    speechSynthesis.speak(u);
+  } catch(e) {}
+}
+
+// ── h() HELPER ────────────────────────────────
+function h(tag, attrs) {
+  var children = Array.prototype.slice.call(arguments, 2);
+  attrs = attrs || {};
+  var el = document.createElement(tag);
+  var style = attrs.style, cls = attrs['class'], id = attrs.id,
+      ds = attrs.dataset, on = attrs.on;
+  if (style) Object.assign(el.style, style);
+  if (cls) el.className = cls;
+  if (id) el.id = id;
+  if (ds) Object.assign(el.dataset, ds);
+  if (on) Object.entries(on).forEach(function(kv){ el.addEventListener(kv[0], kv[1]); });
+  Object.keys(attrs).forEach(function(k){
+    if (!['style','class','id','dataset','on'].includes(k)) el.setAttribute(k, attrs[k]);
+  });
+  children.flat().forEach(function(c){
+    if (c == null || c === false) return;
+    el.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
+  });
+  return el;
+}
+
+// ── STATE ─────────────────────────────────────
+var DEFAULT_STATE = {
+  version: 1,
+  stars: { 'letter-forest':0, 'number-kingdom':0, 'feelings-garden':0, 'color-garden':0, 'music-maker':0, 'wren-alphabet':0 },
+  unlocks: { 'number-kingdom-1-10': false, 'color-garden-free-play': false },
+  settings: { speechEnabled: true, voiceName: null }
+};
+
+var state = loadState();
+
+function loadState() {
+  try {
+    var raw = localStorage.getItem('wrensWorld');
+    if (raw) {
+      var s = JSON.parse(raw);
+      if (s.version === 1) {
+        // Ensure new game star keys exist for saves from before this module was added
+        if (!s.stars) s.stars = {};
+        if (s.stars['wren-alphabet'] === undefined) s.stars['wren-alphabet'] = 0;
+        return s;
+      }
+    }
+  } catch(e) {}
+  return JSON.parse(JSON.stringify(DEFAULT_STATE));
+}
+
+function saveState() {
+  try { localStorage.setItem('wrensWorld', JSON.stringify(state)); } catch(e) {}
+}
+
+function totalStars() {
+  return Object.values(state.stars).reduce(function(a,b){ return a+b; }, 0);
+}
+
+// ── TEE SVG ───────────────────────────────────
+function drawTee(mood, size) {
+  mood = mood || 'happy'; size = size || 90;
+  var angles = { happy:-30, excited:-55, calm:-10, thinking:-20 };
+  var ang = (angles[mood] || -30) * Math.PI / 180;
+  var tx2 = 72 + Math.cos(ang)*22, ty2 = 72 + Math.sin(ang)*18;
+  var eyes = mood === 'excited'
+    ? '<ellipse cx="38" cy="46" rx="4" ry="5" fill="#5c3d2e"/><ellipse cx="52" cy="46" rx="4" ry="5" fill="#5c3d2e"/>'
+    : mood === 'thinking'
+    ? '<circle cx="38" cy="48" r="3.5" fill="#5c3d2e"/><circle cx="52" cy="45" r="3.5" fill="#5c3d2e"/>'
+    : '<circle cx="38" cy="47" r="3.5" fill="#5c3d2e"/><circle cx="52" cy="47" r="3.5" fill="#5c3d2e"/>';
+  var mouth = (mood === 'happy' || mood === 'excited')
+    ? '<path d="M38 57 Q45 63 52 57" stroke="#5c3d2e" stroke-width="2.5" fill="none" stroke-linecap="round"/>'
+    : '<path d="M40 58 Q45 55 50 58" stroke="#5c3d2e" stroke-width="2.5" fill="none" stroke-linecap="round"/>';
+  var spark = mood === 'excited' ? '<text x="60" y="30" font-size="13">&#x2728;</text>' : '';
+  var qx = (72+tx2)/2 + 6, qy = (72+ty2)/2 - 4;
+  return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg">'
+    + '<path d="M72 72 Q'+qx+' '+qy+' '+tx2.toFixed(1)+' '+ty2.toFixed(1)+'" stroke="#c8a050" stroke-width="5" fill="none" stroke-linecap="round"/>'
+    + '<ellipse cx="44" cy="66" rx="22" ry="18" fill="#d4a850"/>'
+    + '<circle cx="45" cy="44" r="20" fill="#e8bc60"/>'
+    + '<ellipse cx="28" cy="35" rx="8" ry="13" fill="#c8a050" transform="rotate(-15 28 35)"/>'
+    + '<ellipse cx="62" cy="35" rx="8" ry="13" fill="#c8a050" transform="rotate(15 62 35)"/>'
+    + '<ellipse cx="45" cy="53" rx="9" ry="7" fill="#f5d080"/>'
+    + '<ellipse cx="45" cy="50" rx="4" ry="3" fill="#5c3d2e"/>'
+    + eyes
+    + '<circle cx="43.5" cy="49" r="1.2" fill="white" opacity="0.8"/>'
+    + mouth + spark + '</svg>';
+}
+
+// ── CONFETTI ──────────────────────────────────
+function spawnConfetti() {
+  var emojis = ['\u2B50','\uD83C\uDF1F','\uD83D\uDC9C','\uD83C\uDF38','\uD83C\uDF89','\uD83C\uDF8A','\uD83D\uDCAB','\uD83C\uDF08','\uD83E\uDD8B','\uD83C\uDF3A'];
+  for (var i = 0; i < 20; i++) {
+    (function(){
+      var el = document.createElement('div');
+      el.className = 'confetti-piece';
+      el.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+      el.style.left = (Math.random()*100) + 'vw';
+      el.style.animationDelay = (Math.random()*0.8) + 's';
+      el.style.animationDuration = (1.4 + Math.random()*0.8) + 's';
+      document.body.appendChild(el);
+      setTimeout(function(){ el.remove(); }, 3000);
+    })();
+  }
+}
+
+function showToast(msg) {
+  var t = document.createElement('div');
+  t.className = 'feedback-toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(function(){ t.remove(); }, 1900);
+}
+
+// ── STAR AWARD ────────────────────────────────
+function awardStar(gameId, callback) {
+  if (state.stars[gameId] >= 5) { if (callback) callback(); return; }
+  state.stars[gameId]++;
+  if (gameId === 'number-kingdom' && state.stars[gameId] === 1) state.unlocks['number-kingdom-1-10'] = true;
+  if (gameId === 'color-garden' && state.stars[gameId] === 1) state.unlocks['color-garden-free-play'] = true;
+  saveState();
+  spawnConfetti();
+  chime('celebrate');
+  speak('Amazing Wren! You earned a star!');
+  animateHeaderTee('excited');
+  setTimeout(function(){ if (callback) callback(); }, 2200);
+}
+
+function animateHeaderTee(mood) {
+  var teeEl = document.getElementById('header-tee');
+  if (!teeEl) return;
+  teeEl.innerHTML = drawTee(mood, 90);
+  var svg = teeEl.querySelector('svg');
+  if (svg) svg.classList.add(mood === 'excited' ? 'tee-bounce' : 'tee-wiggle');
+  setTimeout(function(){ teeEl.innerHTML = drawTee('happy', 90); }, 1800);
+}
+
+// ── SHELL / NAV ───────────────────────────────
+var currentModule = null;
+var settingsTapCount = 0, settingsTapTimer = null, settingsVisible = false;
+var homeScreen = document.getElementById('home-screen');
+var gameScreen = document.getElementById('game-screen');
+var gameContainer = document.getElementById('game-container');
+var gameTitleBar = document.getElementById('game-title-bar');
+
+function showHome() {
+  if (currentModule) { currentModule.unmount(); currentModule = null; }
+  gameScreen.style.display = 'none';
+  homeScreen.style.display = 'flex';
+  renderHome();
+  setTimeout(function(){ speak('Hi Wren! Pick a game!'); }, 600);
+}
+
+function launchGame(module) {
+  homeScreen.style.display = 'none';
+  gameScreen.style.display = 'flex';
+  gameTitleBar.textContent = module.emoji + ' ' + module.title;
+  gameContainer.innerHTML = '';
+  gameContainer.style.background = '';
+  currentModule = module;
+  module.mount(gameContainer);
+}
+
+document.getElementById('home-btn').addEventListener('click', function(){ showConfirmHome(); });
+
+function showConfirmHome() {
+  var ov = h('div', {'class':'overlay'},
+    h('div', {'class':'overlay-card'},
+      h('h2', {}, '\uD83C\uDFE0 All done?'),
+      h('div', {'class':'overlay-btns'},
+        h('button', {'class':'btn btn-primary', on:{ click: function(){ ov.remove(); showHome(); }}}, '\u2705 Yes'),
+        h('button', {'class':'btn btn-secondary', on:{ click: function(){ ov.remove(); }}}, '\u2716 Keep Playing')
+      )
+    )
+  );
+  document.body.appendChild(ov);
+}
+
+// ── HOME RENDER ───────────────────────────────
+// 6 games — grid is 2 columns × 3 rows, no wide card needed
+var GAMES = [
+  { id:'letter-forest',   title:'Letter Forest',   emoji:'\uD83C\uDF33', color:'#c8e6c9' },
+  { id:'number-kingdom',  title:'Number Kingdom',  emoji:'\uD83D\uDC76', color:'#bde0fe' },
+  { id:'feelings-garden', title:'Feelings Garden', emoji:'\uD83C\uDF38', color:'#f4b6c2' },
+  { id:'color-garden',    title:'Color Garden',    emoji:'\uD83C\uDF3A', color:'#c8e6c9' },
+  { id:'music-maker',     title:'Music Maker',     emoji:'\uD83C\uDFB5', color:'#ffd97d' },
+  { id:'wren-alphabet',   title:"Wren's Alphabet", emoji:'\uD83D\uDD24', color:'#e8d5f5' },
+];
+
+function renderHome() {
+  document.getElementById('header-tee').innerHTML = drawTee('happy', 90);
+  var total = totalStars();
+  var starsRow = document.getElementById('total-stars-row');
+  starsRow.innerHTML = '';
+  for (var i = 0; i < 30; i++) {
+    var s = document.createElement('span');
+    s.className = 'star-dot';
+    s.textContent = i < total ? '\u2B50' : '\u2729';
+    starsRow.appendChild(s);
+  }
+  // greeting tap handler - reassign each render
+  var greeting = document.getElementById('home-greeting');
+  var newGreeting = greeting.cloneNode(true);
+  greeting.parentNode.replaceChild(newGreeting, greeting);
+  newGreeting.addEventListener('click', handleSettingsTap);
+
+  var grid = document.getElementById('game-grid');
+  grid.innerHTML = '';
+  GAMES.forEach(function(g) {
+    var stars = state.stars[g.id] || 0;
+    var card = h('div', {'class': 'game-card', style:{borderColor: g.color}},
+      h('div', {'class':'card-emoji'}, g.emoji),
+      h('div', {'class':'card-title'}, g.title),
+      h('div', {'class':'card-stars'}, Array.from({length:5}, function(_,j){ return j<stars?'\u2B50':'\u2729'; }).join(''))
+    );
+    // closure to capture the right id on each iteration
+    (function(id){ card.addEventListener('click', function(){ startGame(id); }); })(g.id);
+    grid.appendChild(card);
+  });
+  renderSettingsArea();
+}
+
+function handleSettingsTap() {
+  settingsTapCount++;
+  clearTimeout(settingsTapTimer);
+  if (settingsTapCount >= 3) { settingsTapCount = 0; settingsVisible = !settingsVisible; renderSettingsArea(); return; }
+  settingsTapTimer = setTimeout(function(){ settingsTapCount = 0; }, 600);
+}
+
+function renderSettingsArea() {
+  var area = document.getElementById('settings-area');
+  area.innerHTML = '';
+  if (!settingsVisible) return;
+  var tog = h('div', {'class':'toggle'+(state.settings.speechEnabled?' on':'')});
+  tog.addEventListener('click', function(){
+    state.settings.speechEnabled = !state.settings.speechEnabled;
+    tog.classList.toggle('on', state.settings.speechEnabled);
+    saveState();
+  });
+  var resetBtn = h('button', {style:{marginTop:'8px',width:'100%',minHeight:'48px',borderRadius:'16px',fontFamily:'inherit',fontSize:'0.95rem',fontWeight:'700',cursor:'pointer',border:'none',background:'#ffb3b3',color:'#c0392b'}}, '\uD83D\uDD04 Reset All Stars');
+  resetBtn.addEventListener('click', function(){
+    if (confirm('Reset all stars? This cannot be undone.')) {
+      state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+      saveState(); settingsVisible = false; renderHome();
+    }
+  });
+  var panel = h('div', {'class':'settings-panel'},
+    h('h3', {}, '\u2699\uFE0F Parent Settings'),
+    h('div', {'class':'settings-row'},
+      h('span', {'class':'settings-label'}, '\uD83D\uDD0A Speech'),
+      tog
+    ),
+    h('div', {'class':'settings-row'},
+      h('span', {'class':'settings-label'}, '\uD83C\uDF1F Total Stars: '+totalStars()+'/30')
+    ),
+    resetBtn
+  );
+  area.appendChild(panel);
+}
+
+function startGame(id) {
+  var mod;
+  if (id==='letter-forest')   mod = new LetterForestModule();
+  else if (id==='number-kingdom')  mod = new NumberKingdomModule();
+  else if (id==='feelings-garden') mod = new FeelingsGardenModule();
+  else if (id==='color-garden')    mod = new ColorGardenModule();
+  else if (id==='music-maker')     mod = new MusicMakerModule();
+  else if (id==='wren-alphabet')   mod = new AlphabetGame(shell);
+  if (mod) launchGame(mod);
+}
+
+// ── SHELL OBJECT (passed to class-style modules) ──
+// Provides the same interface expected by AlphabetGame
+var shell = {
+  speak: speak,
+  chime: chime,
+  complete: function(id) {
+    awardStar(id, function(){ showHome(); });
+  }
+};
+
+// ── GAME 1: LETTER FOREST ─────────────────────
+function LetterForestModule() {
+  this.id = 'letter-forest';
+  this.title = 'Letter Forest';
+  this.emoji = '\uD83C\uDF33';
+  this.color = '#c8e6c9';
+  this.timers = [];
+  this.container = null;
+  this.round = 0;
+  this.leaves = 0;
+  this.letters = [
+    {letter:'W', word:'Wren', emoji:'\uD83D\uDC67'},
+    {letter:'T', word:'Tee',  emoji:'\uD83D\uDC36'},
+    {letter:'B', word:'Big sister', emoji:'\uD83D\uDC69'},
+    {letter:'M', word:'Mom', emoji:'\uD83D\uDC9D'},
+    {letter:'A', word:'Anna', emoji:'\u2744\uFE0F'},
+    {letter:'E', word:'Elsa', emoji:'\uD83D\uDC51'},
+    {letter:'P', word:'Purple', emoji:'\uD83D\uDC9C'},
+    {letter:'S', word:'Star', emoji:'\u2B50'},
+  ];
+}
+
+LetterForestModule.prototype.mount = function(container) {
+  this.container = container;
+  this.round = 0; this.leaves = 0;
+  this.renderRound();
+};
+
+LetterForestModule.prototype.unmount = function() {
+  this.timers.forEach(clearTimeout); this.timers = [];
+  speechSynthesis.cancel();
+  if (this.container) this.container.innerHTML = '';
+};
+
+LetterForestModule.prototype.shuffle = function(arr) {
+  return arr.slice().sort(function(){ return Math.random()-0.5; });
+};
+
+LetterForestModule.prototype.renderRound = function() {
+  if (!this.container) return;
+  this.container.innerHTML = '';
+  var self = this;
+  var target = this.letters[this.round % this.letters.length];
+  var distractors = this.shuffle(this.letters.filter(function(l){ return l.letter !== target.letter; })).slice(0,2);
+  var choices = this.shuffle([target].concat(distractors));
+
+  var progressRow = h('div', {'class':'progress-dots'});
+  for (var i=0;i<5;i++) progressRow.appendChild(h('div', {'class':'progress-dot'+(i<(this.round%5)?' done':'')}));
+
+  var choicesDiv = h('div', {'class':'letter-choices', id:'lf-choices'});
+  choices.forEach(function(c) {
+    var btn = h('button', {'class':'letter-btn', style:{color: c===target?'#7d3f8c':'#8b6914'}}, c.letter);
+    btn.addEventListener('click', function(){ self.handleChoice(c===target, btn, target); });
+    choicesDiv.appendChild(btn);
+  });
+
+  var treesRow = h('div', {'class':'trees-row', id:'lf-trees'});
+  self.buildTrees(treesRow);
+
+  var teeSvg = document.createElement('div');
+  teeSvg.innerHTML = drawTee('happy', 70);
+  teeSvg.id = 'lf-tee';
+  teeSvg.style.textAlign = 'center'; teeSvg.style.marginTop = '8px';
+
+  var bg = h('div', {'class':'forest-bg'},
+    progressRow,
+    h('div', {'class':'letter-display'},
+      h('div', {'class':'big-letter'}, target.letter),
+      h('div', {'class':'letter-word'}, target.emoji + ' ' + target.word)
+    ),
+    choicesDiv,
+    treesRow,
+    teeSvg
+  );
+  this.container.appendChild(bg);
+  this.timers.push(setTimeout(function(){
+    speak('Can you find the letter '+target.letter+'? '+target.letter+' is for '+target.word+'!');
+  }, 300));
+};
+
+LetterForestModule.prototype.buildTrees = function(row) {
+  var self = this;
+  [0,1,2].forEach(function(i) {
+    var leafCount = Math.max(0, Math.min(self.leaves,3) - i);
+    row.appendChild(self.treeSVG(leafCount, i));
+  });
+};
+
+LetterForestModule.prototype.treeSVG = function(extraLeaves, idx) {
+  var cols = ['#81c784','#66bb6a','#a5d6a7'];
+  var c = cols[idx%3];
+  var d = document.createElement('div');
+  d.innerHTML = '<svg width="60" height="80" viewBox="0 0 60 80" xmlns="http://www.w3.org/2000/svg">'
+    + '<rect x="25" y="58" width="10" height="20" fill="#8d6e63" rx="3"/>'
+    + '<polygon points="30,8 6,50 54,50" fill="'+c+'"/>'
+    + '<polygon points="30,20 10,55 50,55" fill="'+cols[(idx+1)%3]+'"/>'
+    + (extraLeaves>0 ? '<circle cx="42" cy="18" r="8" fill="#a5d6a7"/>' : '')
+    + (extraLeaves>1 ? '<circle cx="16" cy="25" r="7" fill="#c8e6c9"/>' : '')
+    + '</svg>';
+  return d;
+};
+
+LetterForestModule.prototype.handleChoice = function(correct, btn, target) {
+  var self = this;
+  if (correct) {
+    chime('correct');
+    speak('Yes! '+target.letter+' is for '+target.word+'!');
+    btn.style.background = '#c8e6c9'; btn.style.borderColor = '#66bb6a';
+    self.leaves++;
+    var teeDiv = document.getElementById('lf-tee');
+    if (teeDiv) { var svg = teeDiv.querySelector('svg'); if (svg) svg.classList.add('tee-bounce'); }
+    var treesRow = document.getElementById('lf-trees');
+    if (treesRow) { treesRow.innerHTML = ''; self.buildTrees(treesRow); }
+    self.round++;
+    if (self.round % 5 === 0) {
+      self.timers.push(setTimeout(function(){
+        awardStar(self.id, function(){ showHome(); });
+      }, 1500));
+    } else {
+      self.timers.push(setTimeout(function(){ self.renderRound(); }, 1500));
+    }
+  } else {
+    chime('wrong');
+    speak('Try again!');
+    btn.style.background = '#ffe0e0';
+    self.timers.push(setTimeout(function(){ btn.style.background = ''; }, 600));
+  }
+};
+
+// ── GAME 2: NUMBER KINGDOM ────────────────────
+function NumberKingdomModule() {
+  this.id = 'number-kingdom';
+  this.title = 'Number Kingdom';
+  this.emoji = '\uD83D\uDC76';
+  this.color = '#bde0fe';
+  this.timers = [];
+  this.container = null;
+  this.round = 0;
+  this.currentCount = 0;
+  this.targetNum = 0;
+  this.countedToys = [];
+  this.toys = ['\uD83E\uDDF8','\uD83E\uDE80','\uD83C\uDF88','\u26BD','\uD83E\uDE81','\uD83E\uDDE9','\uD83C\uDFA8','\uD83E\uDEA9'];
+}
+
+NumberKingdomModule.prototype.mount = function(container) {
+  this.container = container; this.round = 0; this.renderRound();
+};
+
+NumberKingdomModule.prototype.unmount = function() {
+  this.timers.forEach(clearTimeout); this.timers = [];
+  speechSynthesis.cancel();
+  if (this.container) this.container.innerHTML = '';
+};
+
+NumberKingdomModule.prototype.renderRound = function() {
+  if (!this.container) return;
+  this.container.innerHTML = '';
+  this.currentCount = 0; this.countedToys = [];
+  var self = this;
+  var maxNum = state.unlocks['number-kingdom-1-10'] ? 10 : 5;
+  this.targetNum = 1 + Math.floor(Math.random() * maxNum);
+  var numWords = ['one','two','three','four','five','six','seven','eight','nine','ten'];
+
+  var progressRow = h('div', {'class':'progress-dots'});
+  for (var i=0;i<5;i++) progressRow.appendChild(h('div', {'class':'progress-dot'+(i<(self.round%5)?' done':'')}));
+
+  var countEl = h('div', {'class':'count-display', id:'nk-count'}, '0 / '+self.targetNum);
+
+  var cribDiv = document.createElement('div');
+  cribDiv.style.cssText = 'display:flex;justify-content:center;margin:6px 0;';
+  cribDiv.innerHTML = '<svg width="100" height="70" viewBox="0 0 100 70" xmlns="http://www.w3.org/2000/svg">'
+    + '<rect x="10" y="30" width="80" height="35" rx="6" fill="#bde0fe" stroke="#90caf9" stroke-width="2"/>'
+    + '<path d="M10 30 Q50 10 90 30" fill="#e3f2fd" stroke="#90caf9" stroke-width="2"/>'
+    + '<rect x="8" y="28" width="6" height="42" rx="3" fill="#90caf9"/>'
+    + '<rect x="86" y="28" width="6" height="42" rx="3" fill="#90caf9"/>'
+    + '<text x="50" y="52" text-anchor="middle" font-size="18">\uD83D\uDC76</text>'
+    + '</svg>';
+
+  var toysArea = h('div', {'class':'toys-area', id:'nk-toys'});
+  this.toys.forEach(function(t, i) {
+    var btn = h('button', {'class':'toy-btn', dataset:{idx:String(i)}}, t);
+    btn.addEventListener('click', function(){ self.handleToyTap(i, btn); });
+    toysArea.appendChild(btn);
+  });
+
+  var teeSvg = document.createElement('div');
+  teeSvg.innerHTML = drawTee('happy', 60);
+  teeSvg.style.textAlign = 'center'; teeSvg.style.marginTop = '4px';
+
+  var bg = h('div', {'class':'kingdom-bg'},
+    progressRow,
+    h('div', {'class':'target-display'},
+      h('div', {'class':'target-number'}, String(self.targetNum)),
+      h('div', {'class':'target-label'}, 'toys for the baby!')
+    ),
+    countEl, cribDiv, toysArea, teeSvg
+  );
+  this.container.appendChild(bg);
+  this.timers.push(setTimeout(function(){
+    speak('The baby needs '+numWords[self.targetNum-1]+' toy'+(self.targetNum>1?'s':'')+'. Can you help, big sister?');
+  }, 300));
+};
+
+NumberKingdomModule.prototype.handleToyTap = function(idx, btn) {
+  var self = this;
+  if (this.countedToys.indexOf(idx) !== -1) return;
+  var numWords = ['One!','Two!','Three!','Four!','Five!','Six!','Seven!','Eight!','Nine!','Ten!'];
+  var numWordsFull = ['one','two','three','four','five','six','seven','eight','nine','ten'];
+
+  if (this.currentCount >= this.targetNum) {
+    chime('wrong');
+    speak("That's enough! The baby has "+numWordsFull[this.targetNum-1]+" now.");
+    self.timers.push(setTimeout(function(){ self.nextRound(); }, 2000));
+    return;
+  }
+
+  this.countedToys.push(idx);
+  this.currentCount++;
+  btn.classList.add('counted');
+  speak(numWords[this.currentCount-1]);
+
+  var countEl = document.getElementById('nk-count');
+  if (countEl) countEl.textContent = self.currentCount + ' / ' + self.targetNum;
+
+  if (this.currentCount === this.targetNum) {
+    chime('correct');
+    self.timers.push(setTimeout(function(){
+      speak('Great job, big sister!');
+      self.timers.push(setTimeout(function(){ self.nextRound(); }, 1800));
+    }, 400));
+  }
+};
+
+NumberKingdomModule.prototype.nextRound = function() {
+  var self = this;
+  this.round++;
+  if (this.round % 5 === 0) {
+    awardStar(this.id, function(){ showHome(); });
+  } else {
+    this.renderRound();
+  }
+};
+
+// ── GAME 3: FEELINGS GARDEN ───────────────────
+function FeelingsGardenModule() {
+  this.id = 'feelings-garden';
+  this.title = 'Feelings Garden';
+  this.emoji = '\uD83C\uDF38';
+  this.color = '#f4b6c2';
+  this.timers = [];
+  this.container = null;
+  this.round = 0;
+  this.feelings = [
+    {name:'happy', emoji:'\uD83D\uDE0A', label:'Happy', color:'#ffd97d'},
+    {name:'sad',   emoji:'\uD83D\uDE22', label:'Sad',   color:'#bde0fe'},
+    {name:'mad',   emoji:'\uD83D\uDE20', label:'Mad',   color:'#ffcc80'},
+    {name:'scared',emoji:'\uD83D\uDE28', label:'Scared',color:'#ce93d8'},
+  ];
+  this.helpOptions = [
+    {emoji:'\uD83E\uDEB4', label:'Give a hug'},
+    {emoji:'\uD83C\uDF2C\uFE0F', label:'Take a deep breath'},
+    {emoji:'\uD83D\uDE4B', label:'Ask a grown-up'},
+    {emoji:'\uD83E\uDDF8', label:'Snuggle a friend'},
+  ];
+}
+
+FeelingsGardenModule.prototype.mount = function(container) {
+  this.container = container; this.round = 0; this.renderPhaseA();
+};
+
+FeelingsGardenModule.prototype.unmount = function() {
+  this.timers.forEach(clearTimeout); this.timers = [];
+  speechSynthesis.cancel();
+  if (this.container) this.container.innerHTML = '';
+};
+
+FeelingsGardenModule.prototype.shuffle = function(arr) {
+  return arr.slice().sort(function(){ return Math.random()-0.5; });
+};
+
+FeelingsGardenModule.prototype.makeFaceSVG = function(feeling) {
+  var bgMap = {happy:'#fff9c4', sad:'#e3f2fd', mad:'#fff3e0', scared:'#f3e5f5'};
+  var bg = bgMap[feeling] || '#fff';
+  var faceMap = {
+    happy: '<circle cx="40" cy="40" r="4.5" fill="#5c3d2e"/><circle cx="60" cy="40" r="4.5" fill="#5c3d2e"/><circle cx="38" cy="38" r="1.5" fill="white" opacity="0.7"/><circle cx="58" cy="38" r="1.5" fill="white" opacity="0.7"/><path d="M33 53 Q50 63 67 53" stroke="#5c3d2e" stroke-width="3" fill="none" stroke-linecap="round"/>',
+    sad: '<ellipse cx="40" cy="41" rx="4" ry="5" fill="#5c3d2e"/><ellipse cx="60" cy="41" rx="4" ry="5" fill="#5c3d2e"/><circle cx="38.5" cy="39" r="1.4" fill="white" opacity="0.7"/><circle cx="58.5" cy="39" r="1.4" fill="white" opacity="0.7"/><path d="M38 57 Q50 51 62 57" stroke="#5c3d2e" stroke-width="2.5" fill="none" stroke-linecap="round"/><ellipse cx="60" cy="48" rx="3" ry="5" fill="#90caf9" opacity="0.55"/>',
+    mad: '<line x1="32" y1="35" x2="46" y2="39" stroke="#5c3d2e" stroke-width="2.5" stroke-linecap="round"/><line x1="54" y1="39" x2="68" y2="35" stroke="#5c3d2e" stroke-width="2.5" stroke-linecap="round"/><ellipse cx="40" cy="42" rx="4" ry="4.5" fill="#5c3d2e"/><ellipse cx="60" cy="42" rx="4" ry="4.5" fill="#5c3d2e"/><path d="M40 57 Q50 53 60 57" stroke="#5c3d2e" stroke-width="2.5" fill="none" stroke-linecap="round"/>',
+    scared: '<ellipse cx="40" cy="40" rx="5.5" ry="6.5" fill="#5c3d2e"/><ellipse cx="60" cy="40" rx="5.5" ry="6.5" fill="#5c3d2e"/><circle cx="38" cy="37.5" r="1.8" fill="white" opacity="0.7"/><circle cx="58" cy="37.5" r="1.8" fill="white" opacity="0.7"/><ellipse cx="50" cy="57" rx="6" ry="4.5" fill="#5c3d2e" opacity="0.65"/>',
+  };
+  return '<svg width="110" height="110" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">'
+    + '<circle cx="50" cy="50" r="46" fill="'+bg+'" stroke="#f0c8d4" stroke-width="2"/>'
+    + '<circle cx="50" cy="47" r="28" fill="#f5e6c8"/>'
+    + (faceMap[feeling] || faceMap.happy)
+    + '</svg>';
+};
+
+FeelingsGardenModule.prototype.renderPhaseA = function() {
+  if (!this.container) return;
+  this.container.innerHTML = '';
+  var self = this;
+  var target = this.feelings[this.round % this.feelings.length];
+  var others = this.shuffle(this.feelings.filter(function(f){ return f.name !== target.name; })).slice(0,2);
+  var choices = this.shuffle([target].concat(others));
+
+  var progressRow = h('div', {'class':'progress-dots'});
+  for (var i=0;i<5;i++) progressRow.appendChild(h('div', {'class':'progress-dot'+(i<(self.round%5)?' done':'')}));
+
+  var faceDiv = document.createElement('div');
+  faceDiv.innerHTML = self.makeFaceSVG(target.name);
+
+  var choicesDiv = h('div', {'class':'feeling-choices'});
+  choices.forEach(function(c) {
+    var btn = h('button', {'class':'feeling-btn'}, c.emoji + ' ' + c.label);
+    btn.addEventListener('click', function(){ self.handleFeelingChoice(c===target, c, target); });
+    choicesDiv.appendChild(btn);
+  });
+
+  var bg = h('div', {'class':'garden-bg'},
+    progressRow,
+    h('div', {style:{textAlign:'center',marginBottom:'6px'}},
+      h('p', {style:{fontSize:'1rem',color:'var(--wren-soft)',fontWeight:'700'}}, 'How is this friend feeling?')
+    ),
+    h('div', {'class':'face-area'}, faceDiv),
+    choicesDiv
+  );
+  this.container.appendChild(bg);
+  this.timers.push(setTimeout(function(){ speak('How is this friend feeling?'); }, 300));
+};
+
+FeelingsGardenModule.prototype.handleFeelingChoice = function(correct, chosen, target) {
+  var self = this;
+  if (correct) {
+    chime('correct');
+    speak("That's right! They feel "+target.label+"!");
+    self.timers.push(setTimeout(function(){ self.renderPhaseB(target); }, 1200));
+  } else {
+    chime('wrong'); speak('Try again!');
+  }
+};
+
+FeelingsGardenModule.prototype.renderPhaseB = function(feeling) {
+  if (!this.container) return;
+  this.container.innerHTML = '';
+  var self = this;
+  var helpChoices = this.shuffle(this.helpOptions).slice(0,3);
+
+  var faceDiv = document.createElement('div');
+  faceDiv.innerHTML = self.makeFaceSVG(feeling.name);
+  faceDiv.style.textAlign = 'center';
+
+  var helpDiv = h('div', {'class':'help-choices'});
+  helpChoices.forEach(function(opt) {
+    var btn = h('button', {'class':'help-btn'}, opt.emoji + ' ' + opt.label);
+    btn.addEventListener('click', function(){ self.handleHelpChoice(opt); });
+    helpDiv.appendChild(btn);
+  });
+
+  var teeSvg = document.createElement('div');
+  teeSvg.innerHTML = drawTee('calm', 60);
+  teeSvg.style.cssText = 'text-align:center;margin-top:12px;';
+
+  var bg = h('div', {'class':'garden-bg'},
+    h('div', {style:{textAlign:'center',marginBottom:'8px'}},
+      faceDiv,
+      h('p', {style:{fontSize:'1rem',color:'var(--wren-soft)',fontWeight:'700',marginTop:'8px'}}, 'What can help your friend?')
+    ),
+    helpDiv,
+    teeSvg
+  );
+  this.container.appendChild(bg);
+  this.timers.push(setTimeout(function(){ speak('What can help your friend?'); }, 300));
+};
+
+FeelingsGardenModule.prototype.handleHelpChoice = function(opt) {
+  var self = this;
+  chime('correct');
+  speak('Great idea!');
+  showToast('Great idea! ' + opt.emoji);
+  self.round++;
+  if (self.round % 5 === 0) {
+    self.timers.push(setTimeout(function(){
+      awardStar(self.id, function(){ showHome(); });
+    }, 1500));
+  } else {
+    self.timers.push(setTimeout(function(){ self.renderPhaseA(); }, 1500));
+  }
+};
+
+// ── GAME 4: COLOR GARDEN (enhanced — 10 colors, Tee, free play, repeat) ──
+function ColorGardenModule() {
+  this.id = 'color-garden';
+  this.title = 'Color Garden';
+  this.emoji = '\uD83C\uDF3A';
+  this.color = '#c8e6c9';
+  this.timers = [];
+  this.container = null;
+  this.score = 0;          // correct answers this session (resets on mount)
+  this.gardenTarget = null;
+  this.freePlay = false;
+  this.locked = false;
+  this.colors = [
+    { es:'Rojo',     en:'Red',     key:'rojo',     flower:'\uD83C\uDF39', dark:false },
+    { es:'Azul',     en:'Blue',    key:'azul',     flower:'\uD83E\uDD8B', dark:false },
+    { es:'Amarillo', en:'Yellow',  key:'amarillo', flower:'\uD83C\uDF3C', dark:true  },
+    { es:'Verde',    en:'Green',   key:'verde',    flower:'\uD83C\uDF40', dark:true  },
+    { es:'Rosa',     en:'Pink',    key:'rosa',     flower:'\uD83C\uDF38', dark:false },
+    { es:'Morado',   en:'Purple',  key:'morado',   flower:'\uD83D\uDD2E', dark:false },
+    { es:'Naranja',  en:'Orange',  key:'naranja',  flower:'\uD83C\uDF4A', dark:false },
+    { es:'Negro',    en:'Black',   key:'negro',    flower:'\uD83D\uDDA4', dark:false },
+    { es:'Blanco',   en:'White',   key:'blanco',   flower:'\uD83E\uDD0D', dark:true  },
+    { es:'Marr\u00F3n', en:'Brown', key:'marron',  flower:'\uD83D\uDC3B', dark:false },
+  ];
+}
+
+ColorGardenModule.prototype.mount = function(container) {
+  this.container = container;
+  this.score = 0; this.gardenTarget = null; this.freePlay = false; this.locked = false;
+  this.render();
+};
+
+ColorGardenModule.prototype.unmount = function() {
+  this.timers.forEach(clearTimeout); this.timers = [];
+  speechSynthesis.cancel();
+  if (this.container) this.container.innerHTML = '';
+};
+
+ColorGardenModule.prototype.render = function() {
+  if (!this.container) return;
+  this.container.innerHTML = '';
+  var self = this;
+
+  // ── Header card (Tee + title + prompt) ──
+  var teeBuddyDiv = document.createElement('div');
+  teeBuddyDiv.className = 'tee-buddy';
+  teeBuddyDiv.id = 'cg-tee';
+  teeBuddyDiv.innerHTML = drawTee('happy', 52);
+
+  var questionEl = h('div', {'class':'garden-question', id:'cg-question'}, 'Tap Start to play!');
+  var subtextEl  = h('div', {'class':'garden-subtext',  id:'cg-subtext' }, 'Press Start and listen for the color');
+
+  var headerCard = h('div', {'class':'wg-card'},
+    h('div', {'class':'wg-header'},
+      h('div', {},
+        h('h1', {}, 'Color Garden'),
+        h('p',  {}, 'Tee helps Wren learn colors in Spanish')
+      ),
+      teeBuddyDiv
+    ),
+    h('div', {'class':'garden-prompt-card'},
+      h('div', {'class':'garden-label'}, 'Spanish Color Time'),
+      questionEl,
+      subtextEl
+    ),
+    h('div', {'class':'garden-controls'},
+      (function(){
+        var btn = h('button', {'class':'wg-pill-btn', id:'cg-start'}, '\u25B6 Start');
+        btn.addEventListener('click', function(){ self.startRound(); });
+        return btn;
+      })(),
+      (function(){
+        var btn = h('button', {'class':'wg-pill-btn', id:'cg-repeat'}, '\uD83D\uDD01 Repeat');
+        btn.addEventListener('click', function(){ self.repeatPrompt(); });
+        return btn;
+      })(),
+      (function(){
+        var btn = h('button', {'class':'wg-pill-btn', id:'cg-freeplay'}, '\uD83C\uDF38 Free Play: Off');
+        btn.addEventListener('click', function(){ self.toggleFreePlay(btn); });
+        return btn;
+      })()
+    )
+  );
+
+  // ── 3-column color grid ──
+  var grid = h('div', {'class':'garden-color-grid', id:'cg-grid'});
+  this.colors.forEach(function(c) {
+    var btn = h('button', {'class':'garden-color-btn ' + c.key, dataset:{key:c.key}},
+      h('span', {'class':'gcb-flower'}, c.flower),
+      h('span', {'class':'gcb-name' + (c.dark ? ' dark-text' : '')}, c.es)
+    );
+    btn.addEventListener('click', function(){ self.handleColorTap(c, btn); });
+    grid.appendChild(btn);
+  });
+
+  // ── Progress row ──
+  var progressEl = h('div', {'class':'garden-progress'},
+    h('div', {'class':'garden-progress-label'}, 'Flowers Grown'),
+    h('div', {'class':'garden-stars', id:'cg-stars'}, '\uD83C\uDF31 \uD83C\uDF31 \uD83C\uDF31 \uD83C\uDF31 \uD83C\uDF31')
+  );
+
+  var bg = h('div', {'class':'color-garden-bg'}, headerCard, grid, progressEl);
+  this.container.appendChild(bg);
+
+  this.updateStars();
+  this.timers.push(setTimeout(function(){
+    speak("Hi Wren! Welcome to the Color Garden! Tap Start when you're ready!");
+  }, 300));
+};
+
+ColorGardenModule.prototype.updateStars = function() {
+  var el = document.getElementById('cg-stars');
+  if (!el) return;
+  var count = this.score % 5;
+  var flowers = ['\uD83C\uDF39','\uD83E\uDD8B','\uD83C\uDF3C','\uD83C\uDF40','\uD83C\uDF38'];
+  el.textContent = Array.from({length:5}, function(_,i){ return i < count ? flowers[i] : '\uD83C\uDF31'; }).join(' ');
+};
+
+ColorGardenModule.prototype.teeDance = function() {
+  var t = document.getElementById('cg-tee');
+  if (!t) return;
+  t.classList.remove('wag'); void t.offsetWidth; t.classList.add('wag');
+  var self = this;
+  self.timers.push(setTimeout(function(){ t.classList.remove('wag'); }, 600));
+};
+
+ColorGardenModule.prototype.pickTarget = function() {
+  var self = this;
+  var pool = this.colors.filter(function(c){ return !self.gardenTarget || c.key !== self.gardenTarget.key; });
+  return pool[Math.floor(Math.random() * pool.length)];
+};
+
+ColorGardenModule.prototype.startRound = function() {
+  this.gardenTarget = this.pickTarget();
+  this.locked = false;
+  var qEl = document.getElementById('cg-question');
+  var sEl = document.getElementById('cg-subtext');
+  if (qEl) qEl.textContent = this.gardenTarget.es;
+  if (sEl) sEl.textContent = 'Tap the right color!';
+  this.teeDance();
+  speak(this.gardenTarget.es, 'es-ES', 0.75);
+};
+
+ColorGardenModule.prototype.repeatPrompt = function() {
+  if (!this.gardenTarget) return;
+  this.teeDance();
+  speak(this.gardenTarget.es, 'es-ES', 0.75);
+};
+
+ColorGardenModule.prototype.toggleFreePlay = function(btn) {
+  this.freePlay = !this.freePlay;
+  btn.textContent = this.freePlay ? '\uD83C\uDF38 Free Play: On' : '\uD83C\uDF38 Free Play: Off';
+  btn.classList.toggle('on', this.freePlay);
+  if (this.freePlay) {
+    this.gardenTarget = null; this.locked = false;
+    var qEl = document.getElementById('cg-question');
+    var sEl = document.getElementById('cg-subtext');
+    if (qEl) qEl.textContent = 'Tap any color!';
+    if (sEl) sEl.textContent = 'Hear the Spanish name';
+  }
+};
+
+ColorGardenModule.prototype.handleColorTap = function(colorData, btn) {
+  var self = this;
+  if (this.locked && !this.freePlay) return;
+
+  if (this.freePlay) {
+    this.teeDance();
+    speak(colorData.es, 'es-ES', 0.75);
+    self.timers.push(setTimeout(function(){
+      speak(colorData.es + ' means ' + colorData.en + '!');
+    }, 1000));
+    return;
+  }
+
+  if (!this.gardenTarget) return;
+
+  if (colorData.key === this.gardenTarget.key) {
+    this.locked = true;
+    this.score++;
+    chime('correct');
+    this.teeDance();
+    btn.classList.add('correct');
+    speak(colorData.es, 'es-ES', 0.7);
+    self.timers.push(setTimeout(function(){
+      speak('Yes! That is ' + colorData.en + '! Great job Wren!');
+    }, 900));
+    var qEl = document.getElementById('cg-question');
+    var sEl = document.getElementById('cg-subtext');
+    if (qEl) qEl.textContent = colorData.es;
+    if (sEl) sEl.textContent = colorData.en + '!';
+    this.updateStars();
+
+    // 5 correct answers = complete session
+    if (this.score > 0 && this.score % 5 === 0) {
+      self.timers.push(setTimeout(function(){
+        btn.classList.remove('correct');
+        awardStar(self.id, function(){ showHome(); });
+      }, 2000));
+    } else {
+      self.timers.push(setTimeout(function(){
+        btn.classList.remove('correct');
+        self.startRound();
+      }, 1800));
+    }
+  } else {
+    chime('wrong');
+    this.teeDance();
+    btn.classList.add('wrong');
+    speak('Try again! Find ' + this.gardenTarget.es + '!', 'en-US', 0.85);
+    self.timers.push(setTimeout(function(){ btn.classList.remove('wrong'); }, 500));
+  }
+};
+
+// ── GAME 5: MUSIC MAKER ───────────────────────
+function MusicMakerModule() {
+  this.id = 'music-maker';
+  this.title = 'Music Maker';
+  this.emoji = '\uD83C\uDFB5';
+  this.color = '#ffd97d';
+  this.timers = [];
+  this.container = null;
+  this.tapsPlayed = 0;
+  this.sessionStarGiven = !!sessionStorage.getItem('musicMakerStarGiven');
+  this.inSongMode = false;
+  this.currentSong = 0;
+  this.userTaps = 0;
+  this.songsCompleted = 0;
+  this.keys = [
+    {note:'C', freq:261, color:'#b794d4', label:'1'},
+    {note:'D', freq:294, color:'#f4b6c2', label:'2'},
+    {note:'E', freq:330, color:'#bde0fe', label:'3'},
+    {note:'G', freq:392, color:'#c8e6c9', label:'4'},
+    {note:'A', freq:440, color:'#ffd97d', label:'5'},
+  ];
+  this.songs = [
+    {name:'C-D-E',     keys:[0,1,2]},
+    {name:'C-E-G',     keys:[0,2,3]},
+    {name:'C-D-E-D-C', keys:[0,1,2,1,0]},
+  ];
+}
+
+MusicMakerModule.prototype.mount = function(container) {
+  this.container = container; this.tapsPlayed = 0; this.renderFreePlay();
+};
+
+MusicMakerModule.prototype.unmount = function() {
+  this.timers.forEach(clearTimeout); this.timers = [];
+  speechSynthesis.cancel();
+  if (this.container) this.container.innerHTML = '';
+};
+
+MusicMakerModule.prototype.renderFreePlay = function() {
+  if (!this.container) return;
+  this.container.innerHTML = '';
+  var self = this;
+
+  var feedbackEl = h('div', {'class':'music-feedback', id:'mm-feedback'}, 'Tap the keys to make music! \uD83C\uDFB5');
+
+  var songBtn = h('button', {'class':'song-mode-btn', id:'mm-song-btn'}, 'Play a Song \uD83C\uDFB5');
+  if (this.tapsPlayed >= 3) songBtn.style.display = 'block';
+  songBtn.addEventListener('click', function(){ self.startSongMode(); });
+
+  var doneBtn = h('button', {'class':'done-home-btn'}, 'Done \uD83C\uDFE0');
+  doneBtn.addEventListener('click', function(){ self.handleDone(); });
+
+  var pianoArea = h('div', {'class':'piano-area'});
+  this.keys.forEach(function(k, i) {
+    var btn = h('button', {'class':'piano-key', style:{background:k.color}}, k.label);
+    btn.addEventListener('click', function(){
+      playNote(k.freq);
+      self.tapsPlayed++;
+      btn.classList.add('pressed');
+      btn.style.filter = 'brightness(1.3)';
+      self.timers.push(setTimeout(function(){ btn.classList.remove('pressed'); btn.style.filter = ''; }, 250));
+      var noteNames = ['Do','Re','Mi','Sol','La'];
+      if (feedbackEl) feedbackEl.textContent = noteNames[i] + ' \uD83C\uDFB5';
+      if (self.tapsPlayed === 3) {
+        var sb = document.getElementById('mm-song-btn');
+        if (sb) sb.style.display = 'block';
+      }
+    });
+    pianoArea.appendChild(btn);
+  });
+
+  var teeSvg = document.createElement('div');
+  teeSvg.innerHTML = drawTee('happy', 60);
+  teeSvg.style.cssText = 'text-align:center;margin-top:4px;';
+
+  var bg = h('div', {'class':'music-bg'},
+    feedbackEl, pianoArea, songBtn, doneBtn, teeSvg
+  );
+  this.container.appendChild(bg);
+};
+
+MusicMakerModule.prototype.handleDone = function() {
+  if (!this.sessionStarGiven) {
+    sessionStorage.setItem('musicMakerStarGiven','1');
+    this.sessionStarGiven = true;
+    awardStar(this.id, function(){ showHome(); });
+  } else {
+    showHome();
+  }
+};
+
+MusicMakerModule.prototype.startSongMode = function() {
+  this.inSongMode = true; this.currentSong = 0; this.songsCompleted = 0;
+  this.renderSongMode();
+};
+
+MusicMakerModule.prototype.renderSongMode = function() {
+  if (!this.container) return;
+  this.container.innerHTML = '';
+  var self = this;
+  var song = this.songs[this.currentSong % this.songs.length];
+  this.userTaps = 0;
+
+  var feedbackEl = h('div', {'class':'music-feedback', id:'mm-feedback'}, 'Song: '+song.name+' \uD83C\uDFB5');
+
+  var pianoArea = h('div', {'class':'piano-area', id:'mm-piano'});
+  this.keys.forEach(function(k, i) {
+    var btn = h('button', {'class':'piano-key', style:{background:k.color}}, k.label);
+    btn.addEventListener('click', function(){
+      playNote(k.freq);
+      btn.classList.add('pressed');
+      btn.style.filter = 'brightness(1.3)';
+      self.timers.push(setTimeout(function(){ btn.classList.remove('pressed'); btn.style.filter=''; }, 250));
+      self.userTaps++;
+      if (self.userTaps >= 3) {
+        chime('celebrate');
+        speak('Beautiful music, Wren!');
+        if (feedbackEl) feedbackEl.textContent = 'Beautiful music! \uD83C\uDF1F';
+        self.songsCompleted++;
+        if (self.songsCompleted >= 3 && !self.sessionStarGiven) {
+          sessionStorage.setItem('musicMakerStarGiven','1');
+          self.sessionStarGiven = true;
+          self.timers.push(setTimeout(function(){
+            awardStar(self.id, function(){ showHome(); });
+          }, 1500));
+        } else {
+          self.currentSong++;
+          self.timers.push(setTimeout(function(){ self.renderSongMode(); }, 2000));
+        }
+      }
+    });
+    pianoArea.appendChild(btn);
+  });
+
+  var doneBtn = h('button', {'class':'done-home-btn'}, 'Done \uD83C\uDFE0');
+  doneBtn.addEventListener('click', function(){ showHome(); });
+
+  var bg = h('div', {'class':'music-bg'}, feedbackEl, pianoArea, doneBtn);
+  this.container.appendChild(bg);
+
+  // Play demo
+  self.timers.push(setTimeout(function(){
+    if (feedbackEl) feedbackEl.textContent = 'Watch! \uD83D\uDC40';
+    speak('Watch me play!');
+    song.keys.forEach(function(ki, step) {
+      self.timers.push(setTimeout(function(){
+        playNote(self.keys[ki].freq);
+        var pa = document.getElementById('mm-piano');
+        if (pa && pa.children[ki]) {
+          pa.children[ki].classList.add('highlight');
+          self.timers.push(setTimeout(function(){
+            if (pa.children[ki]) pa.children[ki].classList.remove('highlight');
+          }, 360));
+        }
+        if (step === song.keys.length - 1) {
+          self.timers.push(setTimeout(function(){
+            if (feedbackEl) feedbackEl.textContent = 'Your turn! \uD83C\uDFA0';
+            speak('Your turn!');
+          }, 400));
+        }
+      }, 500 + step*460));
+    });
+  }, 300));
+};
+
+// ── GAME 6: WREN'S ALPHABET ───────────────────
+class AlphabetGame {
+  constructor(shellRef) {
+    this.shell = shellRef;
+    this.id = 'wren-alphabet';
+    this.title = "Wren's Alphabet";
+    this.emoji = '\uD83D\uDD24';
+    this.color = '#e8d5f5';
+    this.timers = [];
+    this.container = null;
+    this.mode = 'easy';         // 'easy' | 'medium' | 'hard'
+    this.currentIdx = 0;
+    this.locked = false;
+    this.correct = 0;           // correct answers this session
+
+    this.MODE_META = {
+      easy:   { label: 'See the letter, emoji & word',    hint: 'Find the letter...' },
+      medium: { label: 'No letter \u2014 just the picture!',   hint: 'What letter goes with...' },
+      hard:   { label: 'Listen carefully \u2014 no pictures!', hint: 'Listen and find the letter...' },
+    };
+
+    this.LETTERS = [
+      { l:'A', emoji:'\uD83C\uDF4E', word:'Apple',       color:'#b794d4' },
+      { l:'B', emoji:'\uD83E\uDD8B', word:'Butterfly',   color:'#f4b6c2' },
+      { l:'C', emoji:'\uD83D\uDC31', word:'Cat',         color:'#bde0fe' },
+      { l:'D', emoji:'\uD83D\uDC68', word:'Dadda',       color:'#ffd9b3' },
+      { l:'E', emoji:'\uD83D\uDC18', word:'Elephant',    color:'#c9b3ff' },
+      { l:'F', emoji:'\uD83D\uDC38', word:'Frog',        color:'#b3e6ff' },
+      { l:'G', emoji:'\uD83E\uDD92', word:'Giraffe',     color:'#ffe0b3' },
+      { l:'H', emoji:'\uD83E\uDD94', word:'Hedgehog',    color:'#ffb3b3' },
+      { l:'I', emoji:'\uD83C\uDF66', word:'Ice cream',   color:'#b3ffee' },
+      { l:'J', emoji:'\uD83E\uDDC3', word:'Juice',       color:'#ffd9b3' },
+      { l:'K', emoji:'\uD83E\uDE81', word:'Kite',        color:'#d4ffb3' },
+      { l:'L', emoji:'\uD83E\uDD81', word:'Lion',        color:'#ffe066' },
+      { l:'M', emoji:'\uD83D\uDC69', word:'Mama',        color:'#e0b3ff' },
+      { l:'N', emoji:'\uD83E\uDEBA', word:'Nest',        color:'#b3d9ff' },
+      { l:'O', emoji:'\uD83E\uDD89', word:'Owl',         color:'#ffc2b3' },
+      { l:'P', emoji:'\uD83D\uDC27', word:'Penguin',     color:'#b3c6ff' },
+      { l:'Q', emoji:'\uD83D\uDC78', word:'Queen',       color:'#ffb3d9' },
+      { l:'R', emoji:'\uD83C\uDF39', word:'Rose',        color:'#ff9de2' },
+      { l:'S', emoji:'\u2B50',       word:'Star',        color:'#ffe066' },
+      { l:'T', emoji:'\uD83D\uDC36', word:'Tee',         color:'#ffcc80' },
+      { l:'U', emoji:'\uD83E\uDD84', word:'Unicorn',     color:'#d49eff' },
+      { l:'V', emoji:'\uD83C\uDF38', word:'Violet',      color:'#ffb3e6' },
+      { l:'W', emoji:'\uD83D\uDC67', word:'Wren',        color:'#b3e6ff' },
+      { l:'X', emoji:'\u2728',       word:'X-tra magic', color:'#e0ffb3' },
+      { l:'Y', emoji:'\uD83E\uDE80', word:'Yo-yo',       color:'#ffe0b3' },
+      { l:'Z', emoji:'\uD83E\uDD93', word:'Zebra',       color:'#c9b3ff' },
+    ];
+  }
+
+  mount(container) {
+    this.container = container;
+    this.mode = 'easy';
+    this.locked = false;
+    this.correct = 0;
+    this.render();
+    this._scheduleFirst();
+  }
+
+  unmount() {
+    this.timers.forEach(clearTimeout); this.timers = [];
+    speechSynthesis.cancel();
+    if (this.container) this.container.innerHTML = '';
+  }
+
+  _t(fn, ms) {
+    const id = setTimeout(fn, ms);
+    this.timers.push(id);
+    return id;
+  }
+
+  _shuffle(arr) {
+    return arr.slice().sort(() => Math.random() - 0.5);
+  }
+
+  _scheduleFirst() {
+    this._t(() => {
+      speak("Hi Wren! Let's find some letters! Ready?");
+      this._t(() => this._nextQuestion(), 1800);
+    }, 300);
+  }
+
+  render() {
+    if (!this.container) return;
+    this.container.innerHTML = '';
+
+    const bg = document.createElement('div');
+    bg.className = 'alphabet-bg';
+
+    // ── Difficulty bar ──
+    const modeBar = document.createElement('div');
+    modeBar.className = 'alpha-mode-bar';
+    const modes = [
+      { key:'easy',   label:'\u2B50 Easy'    },
+      { key:'medium', label:'\uD83C\uDF19 Medium' },
+      { key:'hard',   label:'\uD83C\uDFA7 Hard'   },
+    ];
+    modes.forEach(m => {
+      const btn = document.createElement('button');
+      btn.className = 'alpha-mode-btn' + (this.mode === m.key ? ' active' : '');
+      btn.textContent = m.label;
+      btn.addEventListener('click', () => {
+        this.mode = m.key;
+        modeBar.querySelectorAll('.alpha-mode-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        modeLabel.textContent = this.MODE_META[this.mode].label;
+        this._nextQuestion();
+      });
+      modeBar.appendChild(btn);
+    });
+    bg.appendChild(modeBar);
+
+    const modeLabel = document.createElement('div');
+    modeLabel.className = 'alpha-mode-label';
+    modeLabel.textContent = this.MODE_META[this.mode].label;
+    bg.appendChild(modeLabel);
+
+    // ── Card area ──
+    const card = document.createElement('div');
+    card.className = 'alpha-card';
+    card.id = 'alpha-card';
+    bg.appendChild(card);
+
+    // ── Tip button ──
+    const tipBtn = document.createElement('button');
+    tipBtn.className = 'alpha-tip-btn';
+    tipBtn.textContent = '\uD83D\uDCA1 Tip!';
+    tipBtn.addEventListener('click', () => this._giveTip());
+    bg.appendChild(tipBtn);
+
+    // ── Choices ──
+    const choicesDiv = document.createElement('div');
+    choicesDiv.className = 'alpha-choices';
+    choicesDiv.id = 'alpha-choices';
+    bg.appendChild(choicesDiv);
+
+    this.container.appendChild(bg);
+
+    // Store refs for question rendering
+    this._card = card;
+    this._choicesDiv = choicesDiv;
+    this._modeLabel = modeLabel;
+  }
+
+  _nextQuestion() {
+    if (!this.container) return;
+    this.locked = false;
+
+    // Pick a new letter, avoiding the same one twice in a row
+    let idx;
+    do { idx = Math.floor(Math.random() * this.LETTERS.length); }
+    while (idx === this.currentIdx && this.LETTERS.length > 1);
+    this.currentIdx = idx;
+
+    const correct = this.LETTERS[idx];
+    const others  = this._shuffle(this.LETTERS.filter((_, i) => i !== idx)).slice(0, 3);
+    const choices = this._shuffle([correct, ...others]);
+
+    // ── Render card visuals ──
+    const card = this._card;
+    card.innerHTML = '';
+
+    const promptEl = document.createElement('div');
+    promptEl.className = 'alpha-prompt';
+    promptEl.textContent = this.MODE_META[this.mode].hint;
+    card.appendChild(promptEl);
+
+    const letterEl = document.createElement('div');
+    letterEl.className = 'alpha-letter-display';
+    letterEl.textContent = correct.l;
+    letterEl.style.color = correct.color;
+    letterEl.style.display = this.mode === 'easy' ? '' : 'none';
+    // Tapping the letter in easy mode repeats the hint
+    letterEl.addEventListener('click', () => { if (this.mode === 'easy') this._giveTip(); });
+    card.appendChild(letterEl);
+
+    const emojiEl = document.createElement('div');
+    emojiEl.className = 'alpha-emoji-display';
+    emojiEl.textContent = correct.emoji;
+    emojiEl.style.display = (this.mode === 'easy' || this.mode === 'medium') ? '' : 'none';
+    card.appendChild(emojiEl);
+
+    const wordEl = document.createElement('div');
+    wordEl.className = 'alpha-word-display';
+    wordEl.textContent = correct.word;
+    wordEl.style.display = this.mode === 'easy' ? '' : 'none';
+    card.appendChild(wordEl);
+
+    const hardIcon = document.createElement('div');
+    hardIcon.className = 'alpha-hard-icon';
+    hardIcon.textContent = '\uD83C\uDFA7';
+    hardIcon.style.display = this.mode === 'hard' ? '' : 'none';
+    card.appendChild(hardIcon);
+
+    // ── Render choices ──
+    const choicesDiv = this._choicesDiv;
+    choicesDiv.innerHTML = '';
+    choices.forEach(ch => {
+      const btn = document.createElement('button');
+      btn.className = 'alpha-choice-btn';
+      btn.textContent = ch.l;
+      btn.style.color = ch.color;
+      btn.addEventListener('click', () => this._handleChoice(btn, ch === correct, correct));
+      choicesDiv.appendChild(btn);
+    });
+
+    // ── Speak prompt ──
+    this._t(() => {
+      if (this.mode === 'easy') {
+        speak('Can you find the letter ' + correct.l + '? ' + correct.l + ' for ' + correct.word + '!');
+      } else if (this.mode === 'medium') {
+        speak('What letter does ' + correct.word + ' start with?');
+      } else {
+        speak('Find the letter ' + correct.l + '! ' + correct.l + ' as in ' + correct.word + '!');
+      }
+    }, 350);
+  }
+
+  _handleChoice(btn, isCorrect, correctData) {
+    if (this.locked) return;
+
+    if (isCorrect) {
+      this.locked = true;
+      this.correct++;
+      chime('correct');
+      btn.classList.add('correct');
+      speak('Yes!! ' + correctData.l + ' for ' + correctData.word + '! Amazing Wren!');
+
+      if (this.correct >= 10) {
+        // Session complete — award star and return home
+        this._t(() => {
+          this.shell.complete(this.id);
+        }, 1800);
+      } else {
+        this._t(() => this._nextQuestion(), 1600);
+      }
+    } else {
+      chime('wrong');
+      btn.classList.add('wrong');
+      speak('No, that is ' + btn.textContent + '! Try again!');
+      this._t(() => btn.classList.remove('wrong'), 500);
+    }
+  }
+
+  _giveTip() {
+    const c = this.LETTERS[this.currentIdx];
+    if (this.mode === 'easy') {
+      speak("Here's a tip! The letter makes the sound\u2026 " + c.l + '! ' + c.l + ' for ' + c.word + '!');
+    } else if (this.mode === 'medium') {
+      speak("Here's a tip! The word is " + c.word + '! What letter does ' + c.word + ' start with?');
+    } else {
+      speak("Here's a tip! " + c.word + '! ' + c.word + ' starts with the letter ' + c.l + '!');
+    }
+  }
+}
+
+// ── INIT ──────────────────────────────────────
+if (typeof speechSynthesis !== 'undefined') {
+  speechSynthesis.getVoices();
+  speechSynthesis.onvoiceschanged = function(){};
+}
+
+showHome();
+</script>
+</body>
+</html>

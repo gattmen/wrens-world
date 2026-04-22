@@ -1,0 +1,25 @@
+Wren's World design patch
+
+1) Put wrens_world_design_patch.js in the same folder as wrens_world.html.
+2) Open wrens_world.html in a text editor.
+3) Right before the closing </body> tag, add:
+
+<script src="wrens_world_design_patch.js"></script>
+
+4) Save and refresh the browser.
+
+What this patch changes:
+- rounded, child-friendly typography sitewide
+- richer tinted cards on the homepage / hub
+- stronger hover / depth treatment on home cards
+- more visible progress dots on zone screens
+- home button available consistently while inside zones
+- upgraded Feelings Garden layout with a larger expressive Tee area
+- improved Music Maker / Match the Note framing with clearer piano context
+- neutralized non-target Letter Forest letter styling where possible
+- hides meaningless 0/5 star rows if they exist in this build
+
+Notes:
+- This patch is designed to sit on top of the current wrens_world.html structure.
+- It does not require internet access.
+- It is safe to remove later by deleting the added script tag.
