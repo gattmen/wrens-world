@@ -405,7 +405,7 @@
   .rhyme-yn-btn { min-height: clamp(64px,16vw,96px); font-size: clamp(1.6rem,6vw,2.8rem); border: 3px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); cursor: pointer; font-weight: 900; }
   .rhyme-yn-btn:active { transform: translateY(3px); box-shadow: none; }
   .rhyme-pick-choices { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: clamp(8px,2vw,12px); width: min(100%,520px); margin: 0 auto; }
-  .rhyme-pick-btn { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: clamp(10px,2.5vw,18px) 8px; border: 3px solid var(--line); border-radius: var(--radius); background: var(--panel); box-shadow: var(--shadow); cursor: pointer; text-align: center; }
+  .rhyme-pick-btn { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: clamp(10px,2.5vw,18px) 8px; border: 3px solid var(--line); border-radius: var(--radius); background: var(--panel); box-shadow: var(--shadow); cursor: pointer; touch-action: manipulation; text-align: center; }
   .rhyme-pick-btn:active { transform: translateY(3px); box-shadow: none; }
   .rhyme-pick-btn .pick-emoji { font-size: clamp(1.8rem,7vw,3rem); line-height: 1; }
   .rhyme-pick-btn .pick-word  { font-size: clamp(0.85rem,2.5vw,1.05rem); font-weight: 900; color: var(--ink); }
@@ -415,7 +415,7 @@
   /* ── RHYTHM & BEAT ──────────────────────────────────────────────────────── */
   .rhythm-bg { background: #ede9fe; }
   .rhythm-pads-row { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: clamp(12px,3vw,22px); width: min(100%,480px); margin: 0 auto; }
-  .beat-pad { min-height: clamp(100px,24vw,180px); border: 4px solid var(--line); border-radius: clamp(16px,4vw,28px); box-shadow: 0 6px 0 rgba(17,24,39,0.25); cursor: pointer; transition: transform 0.08s, box-shadow 0.08s, filter 0.08s; display: flex; align-items: center; justify-content: center; font-size: clamp(2rem,8vw,3.5rem); }
+  .beat-pad { min-height: clamp(100px,24vw,180px); border: 4px solid var(--line); border-radius: clamp(16px,4vw,28px); box-shadow: 0 6px 0 rgba(17,24,39,0.25); cursor: pointer; touch-action: manipulation; transition: transform 0.08s, box-shadow 0.08s, filter 0.08s; display: flex; align-items: center; justify-content: center; font-size: clamp(2rem,8vw,3.5rem); }
   .beat-pad:active, .beat-pad.lit { transform: translateY(5px); box-shadow: 0 1px 0 rgba(17,24,39,0.25); filter: brightness(1.18); }
   .rhythm-status { min-height: 2em; font-size: clamp(1rem,3.5vw,1.25rem); font-weight: 800; color: var(--ink); text-align: center; }
   .rhythm-tee-row { display: flex; justify-content: center; }
@@ -1807,7 +1807,6 @@ PhonicsModule.prototype.renderLearn = function() {
 
   var bg = h('div', {'class':'forest-bg phonics-bg'},
     progressRow,
-    h('div', {'class':'phonics-phase-label'}, 'Learn the sound'),
     h('div', {'class':'phonics-learn-card'},
       teeSvg,
       h('div', {'class':'phonics-letter'}, letter.l),
@@ -1820,8 +1819,13 @@ PhonicsModule.prototype.renderLearn = function() {
   this.timers.push(setTimeout(function(){
     speak(letter.l + '! ' + letter.l + ' is for ' + letter.word + '! ' + letter.word + ' starts with ' + letter.l + '!');
   }, 300));
-  // Auto-advance to quiz
-  this.timers.push(setTimeout(function(){ self.renderQuiz(letter); }, 3600));
+  // Tap anywhere to advance early; auto-advance after 3.6s
+  var advTimer = setTimeout(function(){ self.renderQuiz(letter); }, 3600);
+  self.timers.push(advTimer);
+  bg.addEventListener('click', function(){
+    clearTimeout(advTimer);
+    self.renderQuiz(letter);
+  }, {once: true});
 };
 
 PhonicsModule.prototype.renderQuiz = function(target) {
@@ -1834,12 +1838,14 @@ PhonicsModule.prototype.renderQuiz = function(target) {
   var progressRow = h('div', {'class':'progress-dots'});
   for (var i=0;i<5;i++) progressRow.appendChild(h('div', {'class':'progress-dot'+(i<(this.round%5)?' done':'')}));
 
+  var correctBtn = null;
   var choicesDiv = h('div', {'class':'phonics-choices'});
   choices.forEach(function(c) {
     var btn = h('button', {'class':'phonics-choice-btn'}, c.l);
+    if (c.l === target.l) correctBtn = btn;
     btn.addEventListener('click', function(){
       if (self.locked) return;
-      self.handleChoice(c.l === target.l, btn, target);
+      self.handleChoice(c.l === target.l, btn, target, correctBtn);
     });
     choicesDiv.appendChild(btn);
   });
@@ -1857,7 +1863,7 @@ PhonicsModule.prototype.renderQuiz = function(target) {
   }, 200));
 };
 
-PhonicsModule.prototype.handleChoice = function(correct, btn, target) {
+PhonicsModule.prototype.handleChoice = function(correct, btn, target, correctBtn) {
   var self = this;
   this.locked = true;
   if (correct) {
@@ -1875,10 +1881,19 @@ PhonicsModule.prototype.handleChoice = function(correct, btn, target) {
     btn.classList.add('wrong');
     chime('wrong');
     speak('Oops! ' + target.word + ' starts with ' + target.l + '!');
+    // After wrong flash, briefly highlight the correct button so child can self-correct
     this.timers.push(setTimeout(function(){
       btn.classList.remove('wrong');
-      self.locked = false;
-    }, 900));
+      if (correctBtn) {
+        correctBtn.classList.add('correct');
+        self.timers.push(setTimeout(function(){
+          correctBtn.classList.remove('correct');
+          self.locked = false;
+        }, 700));
+      } else {
+        self.locked = false;
+      }
+    }, 800));
   }
 };
 
@@ -1925,6 +1940,9 @@ RhymeModule.prototype.mount = function(container) {
   this.container = container;
   this.round = 0; this.pairIdx = 0; this.familyIdx = 0; this.locked = false;
   this.mode = (state.stars[this.id] >= 1) ? 'B' : 'A';
+  // Shuffle so yes/no pairs are mixed — prevents learning "always press YES"
+  this.pairs = this.shuffle(this.pairs);
+  this.families = this.shuffle(this.families);
   this.renderRound();
 };
 
@@ -2046,7 +2064,8 @@ RhymeModule.prototype.handlePickRhyme = function(correct, btn, fam, choice) {
   } else {
     btn.classList.add('wrong');
     chime('wrong');
-    speak('Listen... '+fam.target+'... '+choice.w+'... Try again!');
+    var correct = fam.choices.find(function(x){ return x.r; });
+    speak('Listen... '+fam.target+'... '+(correct?correct.w:'')+'... those rhyme! Try again!');
     this.timers.push(setTimeout(function(){ btn.classList.remove('wrong'); self.locked = false; }, 1500));
   }
 };
@@ -2135,6 +2154,12 @@ RhythmModule.prototype.playPattern = function(callback) {
     var padIdx = self.currentPattern[i];
     self.lightPad(padIdx, true);
     playNote(self.pads[padIdx].note);
+    // Tee bounces on each beat so child sees Tee "doing" the tapping
+    var teeEl = document.getElementById('rhythm-tee');
+    if (teeEl) {
+      var svg = teeEl.querySelector('svg');
+      if (svg) { svg.classList.remove('tee-bounce'); void svg.offsetWidth; svg.classList.add('tee-bounce'); }
+    }
     i++;
     self.timers.push(setTimeout(function(){
       self.lightPad(padIdx, false);
