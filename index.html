@@ -459,28 +459,38 @@ function playNote(freq) {
 }
 
 // ── SPEECH ────────────────────────────────────
+// Preload voices so they're ready on first speak() call
+if (typeof speechSynthesis !== 'undefined') {
+  speechSynthesis.getVoices();
+  speechSynthesis.onvoiceschanged = function() { speechSynthesis.getVoices(); };
+}
+
 function speak(text, lang, rate) {
   lang = lang || 'en-US'; rate = rate || 0.9;
   if (!state.settings.speechEnabled) return;
-  try {
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.rate = rate; u.pitch = 1.1; u.volume = 1; u.lang = lang;
-    if (lang.startsWith('es')) {
-      const vs = speechSynthesis.getVoices();
-      const pref = ['Paulina','Monica','Juan'];
-      let v = null;
-      for (const n of pref) { v = vs.find(x => x.name.includes(n)); if (v) break; }
-      if (!v) v = vs.find(x => x.lang && x.lang.startsWith('es') && x.localService);
-      if (!v) v = vs.find(x => x.lang && x.lang.startsWith('es'));
-      if (v) u.voice = v;
-    } else if (state.settings.voiceName) {
-      const vs = speechSynthesis.getVoices();
-      const v = vs.find(x => x.name === state.settings.voiceName);
-      if (v) u.voice = v;
-    }
-    speechSynthesis.speak(u);
-  } catch(e) {}
+  // Chrome desktop: cancel() immediately followed by speak() silently drops the utterance.
+  // A 50ms gap reliably avoids this.
+  try { speechSynthesis.cancel(); } catch(e) {}
+  setTimeout(function() {
+    try {
+      const u = new SpeechSynthesisUtterance(text);
+      u.rate = rate; u.pitch = 1.1; u.volume = 1; u.lang = lang;
+      if (lang.startsWith('es')) {
+        const vs = speechSynthesis.getVoices();
+        const pref = ['Paulina','Monica','Juan'];
+        let v = null;
+        for (const n of pref) { v = vs.find(x => x.name.includes(n)); if (v) break; }
+        if (!v) v = vs.find(x => x.lang && x.lang.startsWith('es') && x.localService);
+        if (!v) v = vs.find(x => x.lang && x.lang.startsWith('es'));
+        if (v) u.voice = v;
+      } else if (state.settings.voiceName) {
+        const vs = speechSynthesis.getVoices();
+        const v = vs.find(x => x.name === state.settings.voiceName);
+        if (v) u.voice = v;
+      }
+      speechSynthesis.speak(u);
+    } catch(e) {}
+  }, 50);
 }
 
 // ── h() HELPER ────────────────────────────────
@@ -508,7 +518,7 @@ function h(tag, attrs) {
 // ── STATE ─────────────────────────────────────
 var DEFAULT_STATE = {
   version: 1,
-  stars: { 'letter-forest':0, 'number-kingdom':0, 'feelings-garden':0, 'color-garden':0, 'music-maker':0, 'wren-alphabet':0 },
+  stars: { 'letter-forest':0, 'number-kingdom':0, 'color-garden':0, 'music-maker':0, 'wren-alphabet':0 },
   unlocks: { 'number-kingdom-1-10': false, 'color-garden-free-play': false },
   settings: { speechEnabled: true, voiceName: null }
 };
@@ -662,7 +672,6 @@ function showConfirmHome() {
 var GAMES = [
   { id:'letter-forest',   title:'Letter Forest',   emoji:'\uD83C\uDF33', color:'#c8e6c9' },
   { id:'number-kingdom',  title:'Number Kingdom',  emoji:'\uD83D\uDC76', color:'#bde0fe' },
-  { id:'feelings-garden', title:'Feelings Garden', emoji:'\uD83C\uDF38', color:'#f4b6c2' },
   { id:'color-garden',    title:'Color Garden',    emoji:'\uD83C\uDF3A', color:'#c8e6c9' },
   { id:'music-maker',     title:'Music Maker',     emoji:'\uD83C\uDFB5', color:'#ffd97d' },
   { id:'wren-alphabet',   title:"Wren's Alphabet", emoji:'\uD83D\uDD24', color:'#e8d5f5' },
@@ -743,7 +752,6 @@ function startGame(id) {
   var mod;
   if (id==='letter-forest')   mod = new LetterForestModule();
   else if (id==='number-kingdom')  mod = new NumberKingdomModule();
-  else if (id==='feelings-garden') mod = new FeelingsGardenModule();
   else if (id==='color-garden')    mod = new ColorGardenModule();
   else if (id==='music-maker')     mod = new MusicMakerModule();
   else if (id==='wren-alphabet')   mod = new AlphabetGame(shell);
@@ -1000,151 +1008,6 @@ NumberKingdomModule.prototype.nextRound = function() {
     awardStar(this.id, function(){ showHome(); });
   } else {
     this.renderRound();
-  }
-};
-
-// ── GAME 3: FEELINGS GARDEN ───────────────────
-function FeelingsGardenModule() {
-  this.id = 'feelings-garden';
-  this.title = 'Feelings Garden';
-  this.emoji = '\uD83C\uDF38';
-  this.color = '#f4b6c2';
-  this.timers = [];
-  this.container = null;
-  this.round = 0;
-  this.feelings = [
-    {name:'happy', emoji:'\uD83D\uDE0A', label:'Happy', color:'#ffd97d'},
-    {name:'sad',   emoji:'\uD83D\uDE22', label:'Sad',   color:'#bde0fe'},
-    {name:'mad',   emoji:'\uD83D\uDE20', label:'Mad',   color:'#ffcc80'},
-    {name:'scared',emoji:'\uD83D\uDE28', label:'Scared',color:'#ce93d8'},
-  ];
-  this.helpOptions = [
-    {emoji:'\uD83E\uDEB4', label:'Give a hug'},
-    {emoji:'\uD83C\uDF2C\uFE0F', label:'Take a deep breath'},
-    {emoji:'\uD83D\uDE4B', label:'Ask a grown-up'},
-    {emoji:'\uD83E\uDDF8', label:'Snuggle a friend'},
-  ];
-}
-
-FeelingsGardenModule.prototype.mount = function(container) {
-  this.container = container; this.round = 0; this.renderPhaseA();
-};
-
-FeelingsGardenModule.prototype.unmount = function() {
-  this.timers.forEach(clearTimeout); this.timers = [];
-  speechSynthesis.cancel();
-  if (this.container) this.container.innerHTML = '';
-};
-
-FeelingsGardenModule.prototype.shuffle = function(arr) {
-  return arr.slice().sort(function(){ return Math.random()-0.5; });
-};
-
-FeelingsGardenModule.prototype.makeFaceSVG = function(feeling) {
-  var bgMap = {happy:'#fff9c4', sad:'#e3f2fd', mad:'#fff3e0', scared:'#f3e5f5'};
-  var bg = bgMap[feeling] || '#fff';
-  var faceMap = {
-    happy: '<circle cx="40" cy="40" r="4.5" fill="#5c3d2e"/><circle cx="60" cy="40" r="4.5" fill="#5c3d2e"/><circle cx="38" cy="38" r="1.5" fill="white" opacity="0.7"/><circle cx="58" cy="38" r="1.5" fill="white" opacity="0.7"/><path d="M33 53 Q50 63 67 53" stroke="#5c3d2e" stroke-width="3" fill="none" stroke-linecap="round"/>',
-    sad: '<ellipse cx="40" cy="41" rx="4" ry="5" fill="#5c3d2e"/><ellipse cx="60" cy="41" rx="4" ry="5" fill="#5c3d2e"/><circle cx="38.5" cy="39" r="1.4" fill="white" opacity="0.7"/><circle cx="58.5" cy="39" r="1.4" fill="white" opacity="0.7"/><path d="M38 57 Q50 51 62 57" stroke="#5c3d2e" stroke-width="2.5" fill="none" stroke-linecap="round"/><ellipse cx="60" cy="48" rx="3" ry="5" fill="#90caf9" opacity="0.55"/>',
-    mad: '<line x1="32" y1="35" x2="46" y2="39" stroke="#5c3d2e" stroke-width="2.5" stroke-linecap="round"/><line x1="54" y1="39" x2="68" y2="35" stroke="#5c3d2e" stroke-width="2.5" stroke-linecap="round"/><ellipse cx="40" cy="42" rx="4" ry="4.5" fill="#5c3d2e"/><ellipse cx="60" cy="42" rx="4" ry="4.5" fill="#5c3d2e"/><path d="M40 57 Q50 53 60 57" stroke="#5c3d2e" stroke-width="2.5" fill="none" stroke-linecap="round"/>',
-    scared: '<ellipse cx="40" cy="40" rx="5.5" ry="6.5" fill="#5c3d2e"/><ellipse cx="60" cy="40" rx="5.5" ry="6.5" fill="#5c3d2e"/><circle cx="38" cy="37.5" r="1.8" fill="white" opacity="0.7"/><circle cx="58" cy="37.5" r="1.8" fill="white" opacity="0.7"/><ellipse cx="50" cy="57" rx="6" ry="4.5" fill="#5c3d2e" opacity="0.65"/>',
-  };
-  return '<svg width="110" height="110" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">'
-    + '<circle cx="50" cy="50" r="46" fill="'+bg+'" stroke="#f0c8d4" stroke-width="2"/>'
-    + '<circle cx="50" cy="47" r="28" fill="#f5e6c8"/>'
-    + (faceMap[feeling] || faceMap.happy)
-    + '</svg>';
-};
-
-FeelingsGardenModule.prototype.renderPhaseA = function() {
-  if (!this.container) return;
-  this.container.innerHTML = '';
-  var self = this;
-  var target = this.feelings[this.round % this.feelings.length];
-  var others = this.shuffle(this.feelings.filter(function(f){ return f.name !== target.name; })).slice(0,2);
-  var choices = this.shuffle([target].concat(others));
-
-  var progressRow = h('div', {'class':'progress-dots'});
-  for (var i=0;i<5;i++) progressRow.appendChild(h('div', {'class':'progress-dot'+(i<(self.round%5)?' done':'')}));
-
-  var faceDiv = document.createElement('div');
-  faceDiv.innerHTML = self.makeFaceSVG(target.name);
-
-  var choicesDiv = h('div', {'class':'feeling-choices'});
-  choices.forEach(function(c) {
-    var btn = h('button', {'class':'feeling-btn'}, c.emoji + ' ' + c.label);
-    btn.addEventListener('click', function(){ self.handleFeelingChoice(c===target, c, target); });
-    choicesDiv.appendChild(btn);
-  });
-
-  var bg = h('div', {'class':'garden-bg'},
-    progressRow,
-    h('div', {style:{textAlign:'center',marginBottom:'6px'}},
-      h('p', {style:{fontSize:'1rem',color:'var(--wren-soft)',fontWeight:'700'}}, 'How is this friend feeling?')
-    ),
-    h('div', {'class':'face-area'}, faceDiv),
-    choicesDiv
-  );
-  this.container.appendChild(bg);
-  this.timers.push(setTimeout(function(){ speak('How is this friend feeling?'); }, 300));
-};
-
-FeelingsGardenModule.prototype.handleFeelingChoice = function(correct, chosen, target) {
-  var self = this;
-  if (correct) {
-    chime('correct');
-    speak("That's right! They feel "+target.label+"!");
-    self.timers.push(setTimeout(function(){ self.renderPhaseB(target); }, 1200));
-  } else {
-    chime('wrong'); speak('Hmm, look at the face again!');
-  }
-};
-
-FeelingsGardenModule.prototype.renderPhaseB = function(feeling) {
-  if (!this.container) return;
-  this.container.innerHTML = '';
-  var self = this;
-  var helpChoices = this.shuffle(this.helpOptions).slice(0,3);
-
-  var faceDiv = document.createElement('div');
-  faceDiv.innerHTML = self.makeFaceSVG(feeling.name);
-  faceDiv.style.textAlign = 'center';
-
-  var helpDiv = h('div', {'class':'help-choices'});
-  helpChoices.forEach(function(opt) {
-    var btn = h('button', {'class':'help-btn'}, opt.emoji + ' ' + opt.label);
-    btn.addEventListener('click', function(){ self.handleHelpChoice(opt); });
-    helpDiv.appendChild(btn);
-  });
-
-  var teeSvg = document.createElement('div');
-  teeSvg.innerHTML = drawTee('calm', 60);
-  teeSvg.style.cssText = 'text-align:center;margin-top:12px;';
-
-  var bg = h('div', {'class':'garden-bg'},
-    h('div', {style:{textAlign:'center',marginBottom:'8px'}},
-      faceDiv,
-      h('p', {style:{fontSize:'1rem',color:'var(--wren-soft)',fontWeight:'700',marginTop:'8px'}}, 'What can help your friend?')
-    ),
-    helpDiv,
-    teeSvg
-  );
-  this.container.appendChild(bg);
-  this.timers.push(setTimeout(function(){ speak('What can help your friend?'); }, 300));
-};
-
-FeelingsGardenModule.prototype.handleHelpChoice = function(opt) {
-  var self = this;
-  chime('correct');
-  speak('Great idea!');
-  showToast('Great idea! ' + opt.emoji);
-  self.round++;
-  if (self.round % 5 === 0) {
-    self.timers.push(setTimeout(function(){
-      awardStar(self.id, function(){ showHome(); });
-    }, 1500));
-  } else {
-    self.timers.push(setTimeout(function(){ self.renderPhaseA(); }, 1500));
   }
 };
 
