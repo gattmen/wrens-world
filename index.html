@@ -376,6 +376,50 @@
     .toys-area { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   }
 
+
+  /* ── TEST ZONE ─────────────────────────────────────────────────────────── */
+  .test-zone { width: 100%; max-width: 1180px; margin: clamp(14px,3vw,24px) auto 0; }
+  .test-zone-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; color: var(--muted); font-size: clamp(0.85rem,2.5vw,1rem); font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; }
+  .game-card-badge { padding: 1px 6px; background: var(--primary); color: white; border-radius: 6px; font-size: 0.6rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em; vertical-align: middle; margin-left: 4px; }
+
+  /* ── PHONICS SOUND FACTORY ──────────────────────────────────────────────── */
+  .phonics-bg { background: #fef3c7; }
+  .phonics-learn-card { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(8px,2vw,14px); flex: 1; text-align: center; }
+  .phonics-letter { font-size: clamp(5rem,22vw,9rem); font-weight: 900; color: var(--primary-dark); line-height: 1; }
+  .phonics-emoji  { font-size: clamp(3rem,12vw,5.5rem); line-height: 1; }
+  .phonics-word   { font-size: clamp(1.1rem,4vw,1.5rem); font-weight: 800; color: var(--ink); }
+  .phonics-choices { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: clamp(8px,2vw,14px); width: min(100%,440px); margin: 0 auto; }
+  .phonics-choice-btn { min-height: clamp(80px,18vw,130px); font-size: clamp(2.5rem,10vw,4.5rem); font-weight: 900; border: 3px solid var(--line); border-radius: var(--radius); background: var(--panel); box-shadow: var(--shadow); cursor: pointer; color: var(--ink); }
+  .phonics-choice-btn:active { transform: translateY(3px); box-shadow: none; }
+  .phonics-choice-btn.correct { background: #bbf7d0 !important; border-color: var(--good) !important; animation: correctPulse 0.5s ease; }
+  .phonics-choice-btn.wrong   { background: #fecaca !important; border-color: var(--bad)  !important; animation: shake 0.4s ease; }
+  .phonics-phase-label { color: var(--muted); font-size: clamp(0.8rem,2.5vw,1rem); font-weight: 800; text-transform: uppercase; text-align: center; }
+
+  /* ── RHYME GARDEN ───────────────────────────────────────────────────────── */
+  .rhyme-bg { background: #fce7f3; }
+  .rhyme-word-row { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(10px,2vw,16px); width: min(100%,460px); margin: 0 auto; }
+  .rhyme-word-card { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: clamp(12px,3vw,22px); background: var(--panel); border: 3px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); text-align: center; }
+  .rhyme-word-emoji { font-size: clamp(2.5rem,10vw,4rem); line-height: 1; }
+  .rhyme-word-text  { font-size: clamp(1rem,3.5vw,1.3rem); font-weight: 900; color: var(--ink); }
+  .rhyme-yn-row     { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(10px,2vw,16px); width: min(100%,380px); margin: 0 auto; }
+  .rhyme-yn-btn { min-height: clamp(64px,16vw,96px); font-size: clamp(1.6rem,6vw,2.8rem); border: 3px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); cursor: pointer; font-weight: 900; }
+  .rhyme-yn-btn:active { transform: translateY(3px); box-shadow: none; }
+  .rhyme-pick-choices { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: clamp(8px,2vw,12px); width: min(100%,520px); margin: 0 auto; }
+  .rhyme-pick-btn { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: clamp(10px,2.5vw,18px) 8px; border: 3px solid var(--line); border-radius: var(--radius); background: var(--panel); box-shadow: var(--shadow); cursor: pointer; text-align: center; }
+  .rhyme-pick-btn:active { transform: translateY(3px); box-shadow: none; }
+  .rhyme-pick-btn .pick-emoji { font-size: clamp(1.8rem,7vw,3rem); line-height: 1; }
+  .rhyme-pick-btn .pick-word  { font-size: clamp(0.85rem,2.5vw,1.05rem); font-weight: 900; color: var(--ink); }
+  .rhyme-pick-btn.correct { background: #bbf7d0 !important; border-color: var(--good) !important; animation: correctPulse 0.5s ease; }
+  .rhyme-pick-btn.wrong   { background: #fecaca !important; border-color: var(--bad)  !important; animation: shake 0.4s ease; }
+
+  /* ── RHYTHM & BEAT ──────────────────────────────────────────────────────── */
+  .rhythm-bg { background: #ede9fe; }
+  .rhythm-pads-row { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: clamp(12px,3vw,22px); width: min(100%,480px); margin: 0 auto; }
+  .beat-pad { min-height: clamp(100px,24vw,180px); border: 4px solid var(--line); border-radius: clamp(16px,4vw,28px); box-shadow: 0 6px 0 rgba(17,24,39,0.25); cursor: pointer; transition: transform 0.08s, box-shadow 0.08s, filter 0.08s; display: flex; align-items: center; justify-content: center; font-size: clamp(2rem,8vw,3.5rem); }
+  .beat-pad:active, .beat-pad.lit { transform: translateY(5px); box-shadow: 0 1px 0 rgba(17,24,39,0.25); filter: brightness(1.18); }
+  .rhythm-status { min-height: 2em; font-size: clamp(1rem,3.5vw,1.25rem); font-weight: 800; color: var(--ink); text-align: center; }
+  .rhythm-tee-row { display: flex; justify-content: center; }
+
 </style>
 </head>
 <body>
@@ -518,7 +562,7 @@ function h(tag, attrs) {
 // ── STATE ─────────────────────────────────────
 var DEFAULT_STATE = {
   version: 1,
-  stars: { 'letter-forest':0, 'number-kingdom':0, 'color-garden':0, 'music-maker':0, 'wren-alphabet':0 },
+  stars: { 'letter-forest':0, 'number-kingdom':0, 'color-garden':0, 'music-maker':0, 'wren-alphabet':0, 'phonics-factory':0, 'rhyme-garden':0, 'rhythm-beat':0 },
   unlocks: { 'number-kingdom-1-10': false, 'color-garden-free-play': false },
   settings: { speechEnabled: true, voiceName: null }
 };
@@ -533,7 +577,10 @@ function loadState() {
       if (s.version === 1) {
         // Ensure new game star keys exist for saves from before this module was added
         if (!s.stars) s.stars = {};
-        if (s.stars['wren-alphabet'] === undefined) s.stars['wren-alphabet'] = 0;
+        if (s.stars['wren-alphabet']    === undefined) s.stars['wren-alphabet']    = 0;
+        if (s.stars['phonics-factory']  === undefined) s.stars['phonics-factory']  = 0;
+        if (s.stars['rhyme-garden']     === undefined) s.stars['rhyme-garden']     = 0;
+        if (s.stars['rhythm-beat']      === undefined) s.stars['rhythm-beat']      = 0;
         return s;
       }
     }
@@ -669,6 +716,13 @@ function showConfirmHome() {
 
 // ── HOME RENDER ───────────────────────────────
 // 6 games — grid is 2 columns × 3 rows, no wide card needed
+
+var TEST_GAMES = [
+  { id:'phonics-factory', title:'Sound Factory',  emoji:'🗣️', color:'#fde68a' },
+  { id:'rhyme-garden',    title:'Rhyme Garden',   emoji:'🎵',       color:'#fbcfe8' },
+  { id:'rhythm-beat',     title:'Rhythm & Beat',  emoji:'🥁',       color:'#ddd6fe' },
+];
+
 var GAMES = [
   { id:'letter-forest',   title:'Letter Forest',   emoji:'\uD83C\uDF33', color:'#c8e6c9' },
   { id:'number-kingdom',  title:'Number Kingdom',  emoji:'\uD83D\uDC76', color:'#bde0fe' },
@@ -680,9 +734,10 @@ var GAMES = [
 function renderHome() {
   document.getElementById('header-tee').innerHTML = drawTee('happy', 90);
   var total = totalStars();
+  var maxStars = Object.keys(state.stars).length * 5;
   var starsRow = document.getElementById('total-stars-row');
   starsRow.innerHTML = '';
-  for (var i = 0; i < 30; i++) {
+  for (var i = 0; i < maxStars; i++) {
     var s = document.createElement('span');
     s.className = 'star-dot';
     s.textContent = i < total ? '\u2B50' : '\u2729';
@@ -707,6 +762,29 @@ function renderHome() {
     (function(id){ card.addEventListener('click', function(){ startGame(id); }); })(g.id);
     grid.appendChild(card);
   });
+  // ── Test Zone ──
+  var testZoneEl = document.getElementById('test-zone');
+  if (!testZoneEl) {
+    testZoneEl = document.createElement('div');
+    testZoneEl.id = 'test-zone';
+    testZoneEl.className = 'test-zone';
+    document.querySelector('.home-body').insertBefore(testZoneEl, document.getElementById('settings-area'));
+  }
+  testZoneEl.innerHTML = '';
+  testZoneEl.appendChild(h('div', {'class':'test-zone-header'}, '🧪 Test Zone — New Games'));
+  var testGrid = h('div', {'class':'game-grid'});
+  TEST_GAMES.forEach(function(g) {
+    var stars = state.stars[g.id] || 0;
+    var badge = h('span', {'class':'game-card-badge'}, 'NEW');
+    var card = h('div', {'class':'game-card', style:{borderColor: g.color}},
+      h('div', {'class':'card-emoji'}, g.emoji),
+      h('div', {'class':'card-title'}, g.title, badge),
+      h('div', {'class':'card-stars'}, Array.from({length:5}, function(_,j){ return j<stars?'⭐':'✩'; }).join(''))
+    );
+    (function(id){ card.addEventListener('click', function(){ startGame(id); }); })(g.id);
+    testGrid.appendChild(card);
+  });
+  testZoneEl.appendChild(testGrid);
   renderSettingsArea();
 }
 
@@ -741,7 +819,7 @@ function renderSettingsArea() {
       tog
     ),
     h('div', {'class':'settings-row'},
-      h('span', {'class':'settings-label'}, '\uD83C\uDF1F Total Stars: '+totalStars()+'/30')
+      h('span', {'class':'settings-label'}, '\uD83C\uDF1F Total Stars: '+totalStars()+'/'+(Object.keys(state.stars).length*5))
     ),
     resetBtn
   );
@@ -755,6 +833,9 @@ function startGame(id) {
   else if (id==='color-garden')    mod = new ColorGardenModule();
   else if (id==='music-maker')     mod = new MusicMakerModule();
   else if (id==='wren-alphabet')   mod = new AlphabetGame(shell);
+  else if (id==='phonics-factory')  mod = new PhonicsModule();
+  else if (id==='rhyme-garden')      mod = new RhymeModule();
+  else if (id==='rhythm-beat')       mod = new RhythmModule();
   if (mod) launchGame(mod);
 }
 
@@ -1652,6 +1733,466 @@ if (typeof speechSynthesis !== 'undefined') {
   speechSynthesis.getVoices();
   speechSynthesis.onvoiceschanged = function(){};
 }
+
+// ── GAME 7: PHONICS SOUND FACTORY ────────────────────────────────────────────
+function PhonicsModule() {
+  this.id = 'phonics-factory';
+  this.title = 'Sound Factory';
+  this.emoji = '🗣️';
+  this.color = '#fde68a';
+  this.timers = [];
+  this.container = null;
+  this.round = 0;
+  this.locked = false;
+  this.currentIdx = 0;
+  // Jolly Phonics order: high-frequency consonants first, then vowels, then rest
+  this.letters = [
+    { l:'S', word:'Star',     emoji:'⭐' },
+    { l:'A', word:'Apple',    emoji:'🍎' },
+    { l:'T', word:'Teddy',    emoji:'🧸' },
+    { l:'P', word:'Penguin',  emoji:'🐧' },
+    { l:'N', word:'Nest',     emoji:'🪺' },
+    { l:'I', word:'Ice cream',emoji:'🍦' },
+    { l:'C', word:'Cat',      emoji:'🐱' },
+    { l:'E', word:'Elephant', emoji:'🐘' },
+    { l:'H', word:'Heart',    emoji:'❤️' },
+    { l:'R', word:'Rainbow',  emoji:'🌈' },
+    { l:'M', word:'Moon',     emoji:'🌙' },
+    { l:'D', word:'Dog',      emoji:'🐕' },
+    { l:'G', word:'Giraffe',  emoji:'🦒' },
+    { l:'O', word:'Orange',   emoji:'🍊' },
+    { l:'U', word:'Unicorn',  emoji:'🦄' },
+    { l:'L', word:'Lion',     emoji:'🦁' },
+    { l:'F', word:'Frog',     emoji:'🐸' },
+    { l:'B', word:'Bear',     emoji:'🐻' },
+    { l:'W', word:'Wren',     emoji:'👧' },
+    { l:'J', word:'Juice',    emoji:'🧃' },
+    { l:'K', word:'Kite',     emoji:'🪁' },
+    { l:'V', word:'Violin',   emoji:'🎻' },
+    { l:'Q', word:'Queen',    emoji:'👸' },
+    { l:'X', word:'X-ray',    emoji:'🦴' },
+    { l:'Y', word:'Yo-yo',    emoji:'🪀' },
+    { l:'Z', word:'Zebra',    emoji:'🦓' },
+  ];
+}
+
+PhonicsModule.prototype.mount = function(container) {
+  this.container = container;
+  this.round = 0; this.currentIdx = 0; this.locked = false;
+  this.renderLearn();
+};
+
+PhonicsModule.prototype.unmount = function() {
+  this.timers.forEach(clearTimeout); this.timers = [];
+  speechSynthesis.cancel();
+  if (this.container) this.container.innerHTML = '';
+};
+
+PhonicsModule.prototype.shuffle = function(arr) {
+  return arr.slice().sort(function(){ return Math.random()-0.5; });
+};
+
+PhonicsModule.prototype.renderLearn = function() {
+  if (!this.container) return;
+  this.container.innerHTML = '';
+  var self = this;
+  var letter = this.letters[this.currentIdx % this.letters.length];
+
+  var progressRow = h('div', {'class':'progress-dots'});
+  for (var i=0;i<5;i++) progressRow.appendChild(h('div', {'class':'progress-dot'+(i<(this.round%5)?' done':'')}));
+
+  var teeSvg = document.createElement('div');
+  teeSvg.innerHTML = drawTee('excited', 62);
+  teeSvg.style.textAlign = 'center';
+
+  var bg = h('div', {'class':'forest-bg phonics-bg'},
+    progressRow,
+    h('div', {'class':'phonics-phase-label'}, 'Learn the sound'),
+    h('div', {'class':'phonics-learn-card'},
+      teeSvg,
+      h('div', {'class':'phonics-letter'}, letter.l),
+      h('div', {'class':'phonics-emoji'},  letter.emoji),
+      h('div', {'class':'phonics-word'},   letter.l + ' is for ' + letter.word + '!')
+    )
+  );
+  this.container.appendChild(bg);
+
+  this.timers.push(setTimeout(function(){
+    speak(letter.l + '! ' + letter.l + ' is for ' + letter.word + '! ' + letter.word + ' starts with ' + letter.l + '!');
+  }, 300));
+  // Auto-advance to quiz
+  this.timers.push(setTimeout(function(){ self.renderQuiz(letter); }, 3600));
+};
+
+PhonicsModule.prototype.renderQuiz = function(target) {
+  if (!this.container) return;
+  this.container.innerHTML = '';
+  var self = this;
+  var pool = this.letters.filter(function(l){ return l.l !== target.l; });
+  var choices = this.shuffle([target].concat(this.shuffle(pool).slice(0,2)));
+
+  var progressRow = h('div', {'class':'progress-dots'});
+  for (var i=0;i<5;i++) progressRow.appendChild(h('div', {'class':'progress-dot'+(i<(this.round%5)?' done':'')}));
+
+  var choicesDiv = h('div', {'class':'phonics-choices'});
+  choices.forEach(function(c) {
+    var btn = h('button', {'class':'phonics-choice-btn'}, c.l);
+    btn.addEventListener('click', function(){
+      if (self.locked) return;
+      self.handleChoice(c.l === target.l, btn, target);
+    });
+    choicesDiv.appendChild(btn);
+  });
+
+  var bg = h('div', {'class':'forest-bg phonics-bg'},
+    progressRow,
+    h('div', {'class':'phonics-phase-label'}, target.word + ' starts with…'),
+    h('div', {'class':'phonics-emoji', style:{textAlign:'center'}}, target.emoji),
+    choicesDiv
+  );
+  this.container.appendChild(bg);
+
+  this.timers.push(setTimeout(function(){
+    speak('Which letter does ' + target.word + ' start with?');
+  }, 200));
+};
+
+PhonicsModule.prototype.handleChoice = function(correct, btn, target) {
+  var self = this;
+  this.locked = true;
+  if (correct) {
+    btn.classList.add('correct');
+    chime('correct');
+    speak('Yes! ' + target.l + ' is for ' + target.word + '!');
+    this.round++;
+    this.currentIdx++;
+    if (this.round % 5 === 0) {
+      this.timers.push(setTimeout(function(){ awardStar(self.id, function(){ showHome(); }); }, 1500));
+    } else {
+      this.timers.push(setTimeout(function(){ self.locked = false; self.renderLearn(); }, 1400));
+    }
+  } else {
+    btn.classList.add('wrong');
+    chime('wrong');
+    speak('Oops! ' + target.word + ' starts with ' + target.l + '!');
+    this.timers.push(setTimeout(function(){
+      btn.classList.remove('wrong');
+      self.locked = false;
+    }, 900));
+  }
+};
+
+// ── GAME 8: RHYME GARDEN ─────────────────────────────────────────────────────
+function RhymeModule() {
+  this.id = 'rhyme-garden';
+  this.title = 'Rhyme Garden';
+  this.emoji = '🎵';
+  this.color = '#fbcfe8';
+  this.timers = [];
+  this.container = null;
+  this.round = 0;
+  this.locked = false;
+  this.pairIdx = 0;
+  this.familyIdx = 0;
+  // Phase A: yes/no — do these rhyme?
+  this.pairs = [
+    { w1:'CAT',  e1:'🐱', w2:'HAT',   e2:'🎩', rhymes:true  },
+    { w1:'DOG',  e1:'🐶', w2:'HOG',   e2:'🐷', rhymes:true  },
+    { w1:'BEE',  e1:'🐝', w2:'TREE',  e2:'🌳', rhymes:true  },
+    { w1:'STAR', e1:'⭐',       w2:'CAR',   e2:'🚗', rhymes:true  },
+    { w1:'BEAR', e1:'🐻', w2:'PEAR',  e2:'🍐', rhymes:true  },
+    { w1:'MOON', e1:'🌙', w2:'SPOON', e2:'🥄', rhymes:true  },
+    { w1:'FISH', e1:'🐟', w2:'DISH',  e2:'🍽️', rhymes:true },
+    { w1:'CAKE', e1:'🎂', w2:'SNAKE', e2:'🐍', rhymes:true  },
+    { w1:'CAT',  e1:'🐱', w2:'DOG',   e2:'🐶', rhymes:false },
+    { w1:'SUN',  e1:'☀️', w2:'FROG',  e2:'🐸', rhymes:false },
+    { w1:'BUS',  e1:'🚌', w2:'MOON',  e2:'🌙', rhymes:false },
+    { w1:'BIRD', e1:'🐦', w2:'FISH',  e2:'🐟', rhymes:false },
+    { w1:'BEAR', e1:'🐻', w2:'TREE',  e2:'🌳', rhymes:false },
+  ];
+  // Phase B: pick the rhyming word (unlocks after first star)
+  this.families = [
+    { target:'CAT',  te:'🐱', choices:[{w:'HAT',  e:'🎩',r:true}, {w:'DOG', e:'🐶',r:false},{w:'SUN', e:'☀️',r:false}]},
+    { target:'BEE',  te:'🐝', choices:[{w:'TREE', e:'🌳',r:true}, {w:'CAR', e:'🚗',r:false},{w:'FISH',e:'🐟',r:false}]},
+    { target:'MOON', te:'🌙', choices:[{w:'SPOON',e:'🥄',r:true}, {w:'BIRD',e:'🐦',r:false},{w:'CAT', e:'🐱',r:false}]},
+    { target:'BEAR', te:'🐻', choices:[{w:'PEAR', e:'🍐',r:true}, {w:'FROG',e:'🐸',r:false},{w:'STAR',e:'⭐',      r:false}]},
+    { target:'STAR', te:'⭐',       choices:[{w:'CAR',  e:'🚗',r:true}, {w:'DOG', e:'🐶',r:false},{w:'BEE', e:'🐝',r:false}]},
+    { target:'CAKE', te:'🎂', choices:[{w:'SNAKE',e:'🐍',r:true}, {w:'MOON',e:'🌙',r:false},{w:'FISH',e:'🐟',r:false}]},
+  ];
+}
+
+RhymeModule.prototype.mount = function(container) {
+  this.container = container;
+  this.round = 0; this.pairIdx = 0; this.familyIdx = 0; this.locked = false;
+  this.mode = (state.stars[this.id] >= 1) ? 'B' : 'A';
+  this.renderRound();
+};
+
+RhymeModule.prototype.unmount = function() {
+  this.timers.forEach(clearTimeout); this.timers = [];
+  speechSynthesis.cancel();
+  if (this.container) this.container.innerHTML = '';
+};
+
+RhymeModule.prototype.shuffle = function(arr) { return arr.slice().sort(function(){ return Math.random()-0.5; }); };
+
+RhymeModule.prototype.renderRound = function() {
+  if (this.mode === 'B') { this.renderPhaseB(); } else { this.renderPhaseA(); }
+};
+
+RhymeModule.prototype.renderPhaseA = function() {
+  if (!this.container) return;
+  this.container.innerHTML = '';
+  var self = this;
+  var pair = this.pairs[this.pairIdx % this.pairs.length];
+
+  var progressRow = h('div', {'class':'progress-dots'});
+  for (var i=0;i<5;i++) progressRow.appendChild(h('div', {'class':'progress-dot'+(i<(this.round%5)?' done':'')}));
+
+  var yesBtn = h('button', {'class':'rhyme-yn-btn', style:{background:'#bbf7d0'}}, '👍 Yes!');
+  var noBtn  = h('button', {'class':'rhyme-yn-btn', style:{background:'#fecaca'}}, '👎 No!');
+  yesBtn.addEventListener('click', function(){ if(!self.locked) self.handleYesNo(true, pair); });
+  noBtn.addEventListener('click',  function(){ if(!self.locked) self.handleYesNo(false, pair); });
+
+  var bg = h('div', {'class':'forest-bg rhyme-bg'},
+    progressRow,
+    h('div', {'class':'phonics-phase-label'}, 'Do these rhyme?'),
+    h('div', {'class':'rhyme-word-row'},
+      h('div', {'class':'rhyme-word-card'}, h('div', {'class':'rhyme-word-emoji'}, pair.e1), h('div', {'class':'rhyme-word-text'}, pair.w1)),
+      h('div', {'class':'rhyme-word-card'}, h('div', {'class':'rhyme-word-emoji'}, pair.e2), h('div', {'class':'rhyme-word-text'}, pair.w2))
+    ),
+    h('div', {'class':'rhyme-yn-row'}, yesBtn, noBtn)
+  );
+  this.container.appendChild(bg);
+
+  this.timers.push(setTimeout(function(){
+    speak(pair.w1 + '...' + pair.w2 + '. Do they rhyme?');
+  }, 400));
+};
+
+RhymeModule.prototype.handleYesNo = function(userSaidYes, pair) {
+  var self = this;
+  this.locked = true;
+  var correct = (userSaidYes === pair.rhymes);
+  if (correct) {
+    chime('correct');
+    speak(pair.rhymes ? pair.w1+' and '+pair.w2+' rhyme! Great job!' : 'Right! They do not rhyme!');
+    this.round++; this.pairIdx++;
+    if (this.round % 5 === 0) {
+      this.timers.push(setTimeout(function(){ awardStar(self.id, function(){ showHome(); }); }, 1500));
+    } else {
+      this.timers.push(setTimeout(function(){ self.locked = false; self.renderRound(); }, 1500));
+    }
+  } else {
+    chime('wrong');
+    // Educator mandate: replay both words and give the answer on wrong
+    speak('Listen again! '+pair.w1+'...'+pair.w2+'... '+(pair.rhymes ? 'They rhyme!' : 'They do not rhyme!'));
+    this.timers.push(setTimeout(function(){ self.locked = false; }, 2200));
+  }
+};
+
+RhymeModule.prototype.renderPhaseB = function() {
+  if (!this.container) return;
+  this.container.innerHTML = '';
+  var self = this;
+  var fam = this.families[this.familyIdx % this.families.length];
+  var choices = this.shuffle(fam.choices);
+
+  var progressRow = h('div', {'class':'progress-dots'});
+  for (var i=0;i<5;i++) progressRow.appendChild(h('div', {'class':'progress-dot'+(i<(this.round%5)?' done':'')}));
+
+  var pickRow = h('div', {'class':'rhyme-pick-choices'});
+  choices.forEach(function(c) {
+    var btn = h('div', {'class':'rhyme-pick-btn'},
+      h('div', {'class':'pick-emoji'}, c.e),
+      h('div', {'class':'pick-word'},  c.w)
+    );
+    btn.addEventListener('click', function(){
+      if (self.locked) return;
+      self.handlePickRhyme(c.r, btn, fam, c);
+    });
+    pickRow.appendChild(btn);
+  });
+
+  var bg = h('div', {'class':'forest-bg rhyme-bg'},
+    progressRow,
+    h('div', {'class':'rhyme-word-card', style:{margin:'0 auto', width:'min(100%, 200px)'}},
+      h('div', {'class':'rhyme-word-emoji', style:{textAlign:'center'}}, fam.te),
+      h('div', {'class':'rhyme-word-text',  style:{textAlign:'center'}}, fam.target)
+    ),
+    h('div', {'class':'phonics-phase-label'}, 'Which rhymes with '+fam.target+'?'),
+    pickRow
+  );
+  this.container.appendChild(bg);
+
+  this.timers.push(setTimeout(function(){
+    speak('Which word rhymes with ' + fam.target + '?');
+  }, 400));
+};
+
+RhymeModule.prototype.handlePickRhyme = function(correct, btn, fam, choice) {
+  var self = this;
+  this.locked = true;
+  if (correct) {
+    btn.classList.add('correct');
+    chime('correct');
+    speak(choice.w + ' and ' + fam.target + ' rhyme! Amazing!');
+    this.round++; this.familyIdx++;
+    if (this.round % 5 === 0) {
+      this.timers.push(setTimeout(function(){ awardStar(self.id, function(){ showHome(); }); }, 1500));
+    } else {
+      this.timers.push(setTimeout(function(){ self.locked = false; self.renderRound(); }, 1500));
+    }
+  } else {
+    btn.classList.add('wrong');
+    chime('wrong');
+    speak('Listen... '+fam.target+'... '+choice.w+'... Try again!');
+    this.timers.push(setTimeout(function(){ btn.classList.remove('wrong'); self.locked = false; }, 1500));
+  }
+};
+
+// ── GAME 9: RHYTHM & BEAT ────────────────────────────────────────────────────
+function RhythmModule() {
+  this.id = 'rhythm-beat';
+  this.title = 'Rhythm & Beat';
+  this.emoji = '🥁';
+  this.color = '#ddd6fe';
+  this.timers = [];
+  this.container = null;
+  this.round = 0;
+  this.difficulty = 2;
+  this.currentPattern = [];
+  this.childTaps = [];
+  this.listening = false;
+  this.locked = false;
+  this.pads = [
+    { color:'#f87171', note:330, emoji:'🔴' },
+    { color:'#60a5fa', note:261, emoji:'🔵' },
+    { color:'#4ade80', note:392, emoji:'🟢' },
+  ];
+}
+
+RhythmModule.prototype.mount = function(container) {
+  this.container = container;
+  this.round = 0; this.difficulty = 2; this.listening = false; this.locked = false;
+  this.renderRound();
+};
+
+RhythmModule.prototype.unmount = function() {
+  this.timers.forEach(clearTimeout); this.timers = [];
+  speechSynthesis.cancel();
+  if (this.container) this.container.innerHTML = '';
+};
+
+RhythmModule.prototype.renderRound = function() {
+  if (!this.container) return;
+  this.container.innerHTML = '';
+  var self = this;
+  this.currentPattern = Array.from({length: this.difficulty}, function(){ return Math.floor(Math.random()*3); });
+  this.childTaps = [];
+  this.listening = false;
+
+  var progressRow = h('div', {'class':'progress-dots'});
+  for (var i=0;i<5;i++) progressRow.appendChild(h('div', {'class':'progress-dot'+(i<(this.round%5)?' done':'')}));
+
+  var teeSvg = document.createElement('div');
+  teeSvg.className = 'rhythm-tee-row'; teeSvg.id = 'rhythm-tee';
+  teeSvg.innerHTML = drawTee('excited', 72);
+
+  var statusEl = h('div', {'class':'rhythm-status'}, 'Watch Tee! 👀');
+  statusEl.id = 'rhythm-status';
+
+  var padsRow = h('div', {'class':'rhythm-pads-row'});
+  this.pads.forEach(function(pad, idx) {
+    var btn = h('div', {'class':'beat-pad', style:{background: pad.color}}, pad.emoji);
+    btn.id = 'beat-pad-' + idx;
+    btn.addEventListener('click', function(){
+      if (!self.listening || self.locked) return;
+      self.handleTap(idx, btn);
+    });
+    padsRow.appendChild(btn);
+  });
+
+  var bg = h('div', {'class':'forest-bg rhythm-bg'},
+    progressRow,
+    teeSvg,
+    statusEl,
+    padsRow
+  );
+  this.container.appendChild(bg);
+
+  this.timers.push(setTimeout(function(){
+    speak('Watch Tee! Copy the pattern!');
+    self.timers.push(setTimeout(function(){ self.playPattern(function(){ self.startListening(); }); }, 1300));
+  }, 300));
+};
+
+RhythmModule.prototype.playPattern = function(callback) {
+  var self = this;
+  var i = 0;
+  function step() {
+    if (i >= self.currentPattern.length) { self.timers.push(setTimeout(callback, 500)); return; }
+    var padIdx = self.currentPattern[i];
+    self.lightPad(padIdx, true);
+    playNote(self.pads[padIdx].note);
+    i++;
+    self.timers.push(setTimeout(function(){
+      self.lightPad(padIdx, false);
+      self.timers.push(setTimeout(step, 180));
+    }, 460));
+  }
+  step();
+};
+
+RhythmModule.prototype.lightPad = function(idx, on) {
+  var el = document.getElementById('beat-pad-' + idx);
+  if (el) { if (on) el.classList.add('lit'); else el.classList.remove('lit'); }
+};
+
+RhythmModule.prototype.startListening = function() {
+  this.childTaps = []; this.listening = true;
+  var s = document.getElementById('rhythm-status');
+  if (s) s.textContent = 'Your turn! 🎉';
+};
+
+RhythmModule.prototype.handleTap = function(padIdx, btn) {
+  if (!this.listening || this.locked) return;
+  var self = this;
+  playNote(this.pads[padIdx].note);
+  btn.classList.add('lit');
+  this.timers.push(setTimeout(function(){ btn.classList.remove('lit'); }, 200));
+  this.childTaps.push(padIdx);
+  if (this.childTaps.length >= this.currentPattern.length) {
+    this.listening = false; this.locked = true;
+    this.timers.push(setTimeout(function(){ self.checkPattern(); }, 300));
+  }
+};
+
+RhythmModule.prototype.checkPattern = function() {
+  var self = this;
+  var correct = this.currentPattern.every(function(v,i){ return v === self.childTaps[i]; });
+  if (correct) {
+    chime('correct');
+    speak('Amazing! You got it!');
+    this.round++;
+    if (this.round % 3 === 0 && this.difficulty < 4) this.difficulty++;
+    if (this.round % 5 === 0) {
+      this.timers.push(setTimeout(function(){ awardStar(self.id, function(){ showHome(); }); }, 1500));
+    } else {
+      this.timers.push(setTimeout(function(){ self.locked = false; self.renderRound(); }, 1500));
+    }
+  } else {
+    chime('wrong');
+    var s = document.getElementById('rhythm-status');
+    if (s) s.textContent = 'Watch again! 👀';
+    speak('Oops! Watch again!');
+    this.timers.push(setTimeout(function(){
+      self.locked = false; self.childTaps = []; self.listening = false;
+      self.playPattern(function(){ self.startListening(); });
+    }, 1100));
+  }
+};
+
 
 showHome();
 </script>
