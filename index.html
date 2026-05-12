@@ -2,424 +2,290 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Wren's World</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #f3f4f6;
-    --panel: #ffffff;
-    --panel-alt: #f9fafb;
-    --ink: #111827;
-    --muted: #374151;
-    --line: #111827;
-    --primary: #0f766e;
-    --primary-dark: #115e59;
-    --good: #15803d;
-    --bad: #b91c1c;
-    --soft-blue: #dbeafe;
-    --soft-green: #dcfce7;
-    --soft-yellow: #fef3c7;
-    --soft-orange: #ffedd5;
-    --soft-gray: #e5e7eb;
-    --radius: 12px;
-    --shadow: 0 3px 0 rgba(17, 24, 39, 0.22);
-    --tap: 48px;
-    --page-pad: clamp(10px, 3vw, 28px);
+    --wren-purple: #b794d4;
+    --wren-pink:   #f4b6c2;
+    --wren-cream:  #fff8f0;
+    --wren-sage:   #c8e6c9;
+    --wren-sky:    #bde0fe;
+    --wren-sun:    #ffd97d;
+    --wren-soft:   #7d6e87;
+    --wren-white:  #ffffff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; user-select: none; }
+  body { font-family: "Quicksand","Comic Sans MS",cursive; background: var(--wren-cream); min-height: 100vh; overflow-x: hidden; }
+  #app { max-width: 480px; margin: 0 auto; min-height: 100vh; position: relative; }
 
-    --wren-purple: var(--primary);
-    --wren-pink: #fecaca;
-    --wren-cream: var(--bg);
-    --wren-sage: var(--soft-green);
-    --wren-sky: var(--soft-blue);
-    --wren-sun: var(--soft-yellow);
-    --wren-soft: var(--ink);
-    --wren-white: var(--panel);
-  }
+  /* HOME */
+  #home-screen { display: flex; flex-direction: column; min-height: 100vh; background: var(--wren-cream); }
+  .home-header { background: linear-gradient(135deg, var(--wren-purple), var(--wren-pink)); padding: 20px 20px 24px; border-radius: 0 0 32px 32px; box-shadow: 0 4px 16px rgba(183,148,212,0.3); position: relative; }
+  .home-header h1 { font-size: 2rem; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.15); font-weight: 800; }
+  .header-tee { position: absolute; right: 16px; top: 10px; }
+  .home-body { padding: 16px; flex: 1; }
+  /* 6-card grid: 2 columns, 3 rows — no wide card needed */
+  .game-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .game-card { background: white; border-radius: 24px; padding: 18px 12px; text-align: center; box-shadow: 0 4px 14px rgba(0,0,0,0.08); cursor: pointer; transition: transform 0.15s ease, box-shadow 0.15s ease; min-height: 160px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; border: 3px solid transparent; }
+  .game-card:active { transform: scale(0.96); }
+  .game-card .card-emoji { font-size: 2.4rem; }
+  .game-card .card-title { font-size: 1rem; font-weight: 700; color: var(--wren-soft); }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  html { min-height: 100%; background: var(--bg); color: var(--ink); text-size-adjust: 100%; -webkit-text-size-adjust: 100%; }
-  body {
-    min-width: 320px;
-    min-height: 100svh;
-    overflow-x: hidden;
-    background: var(--bg);
-    color: var(--ink);
-    font-family: 'Nunito', "Comic Sans MS", "Comic Sans", Arial, sans-serif;
-    font-style: normal;
-    font-synthesis-style: none;
-    line-height: 1.3;
-  }
-  body, button, input, select, textarea, h1, h2, h3, p, div, span { font-style: normal !important; }
-  button, input, select, textarea { font: inherit; }
-  button { min-height: var(--tap); color: inherit; touch-action: manipulation; }
-  svg, img { max-width: 100%; height: auto; }
-  #app { width: 100%; min-height: 100svh; }
+  /* GAME SCREEN */
+  #game-screen { display: none; flex-direction: column; min-height: 100vh; }
+  .game-topbar { display: flex; align-items: center; padding: 12px 16px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.06); position: sticky; top: 0; z-index: 10; gap: 8px; }
+  .home-btn { width: 48px; height: 48px; border-radius: 50%; background: var(--wren-cream); border: 2px solid var(--wren-purple); font-size: 1.4rem; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: transform 0.1s; }
+  .home-btn:active { transform: scale(0.9); }
+  .game-title-bar { flex: 1; text-align: center; font-size: 1.1rem; font-weight: 700; color: var(--wren-soft); }
+  #game-container { flex: 1; overflow-y: auto; padding: 16px; }
 
-  #home-screen { display: flex; min-height: 100svh; flex-direction: column; background: var(--bg); }
-  .home-header {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) clamp(58px, 12vw, 100px);
-    gap: 10px 16px;
-    align-items: center;
-    width: 100%;
-    background: var(--primary);
-    color: white;
-    border-bottom: 4px solid var(--primary-dark);
-    padding: clamp(14px, 4vw, 30px) var(--page-pad);
-  }
-  .home-header h1 { min-width: 0; font-size: clamp(1.6rem, 7vw, 3.6rem); font-weight: 800; line-height: 1.02; letter-spacing: 0; }
-  .header-tee { grid-row: span 2; display: flex; align-items: center; justify-content: center; width: 100%; }
-  .stars-row { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px; max-width: 100%; }
-  .star-dot { font-size: clamp(0.85rem, 2.6vw, 1.1rem); line-height: 1; }
-  .home-body { width: 100%; max-width: 1180px; margin: 0 auto; padding: var(--page-pad); flex: 1; }
-  .game-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr)); gap: clamp(10px, 2vw, 18px); width: 100%; }
-  .game-card {
-    min-width: 0;
-    min-height: clamp(118px, 20vw, 190px);
-    display: grid;
-    place-items: center;
-    align-content: center;
-    gap: 8px;
-    padding: clamp(12px, 2.5vw, 22px);
-    background: var(--panel);
-    border: 3px solid var(--line) !important;
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    cursor: pointer;
-    text-align: center;
-    transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
-  }
-  .game-card:hover { background: var(--panel-alt); }
-  .game-card:active { transform: translateY(3px); box-shadow: none; }
-  .game-card .card-emoji { font-size: clamp(2rem, 8vw, 3.25rem); line-height: 1; }
-  .game-card .card-title { color: var(--ink); font-size: clamp(0.95rem, 2.5vw, 1.2rem); font-weight: 800; line-height: 1.15; }
-  .game-card .card-stars { max-width: 100%; overflow-wrap: anywhere; font-size: clamp(0.8rem, 2.2vw, 1rem); line-height: 1.15; letter-spacing: 0; }
+  /* OVERLAY */
+  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 100; }
+  .overlay-card { background: white; border-radius: 28px; padding: 32px 28px; text-align: center; max-width: 320px; width: 90%; box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
+  .overlay-card h2 { font-size: 1.6rem; margin-bottom: 20px; color: var(--wren-soft); }
+  .overlay-btns { display: flex; gap: 12px; justify-content: center; }
+  .btn { padding: 14px 24px; border-radius: 50px; border: none; font-family: inherit; font-size: 1rem; font-weight: 700; cursor: pointer; min-width: 100px; min-height: 48px; transition: transform 0.1s; }
+  .btn:active { transform: scale(0.96); }
+  .btn-primary { background: var(--wren-purple); color: white; }
+  .btn-secondary { background: var(--wren-sage); color: var(--wren-soft); }
 
-  #game-screen { display: none; min-height: 100svh; flex-direction: column; background: var(--bg); }
-  .game-topbar {
-    display: grid;
-    grid-template-columns: var(--tap) minmax(0, 1fr) var(--tap);
-    align-items: center;
-    gap: 8px;
-    width: 100%;
-    padding: 8px var(--page-pad);
-    background: var(--panel);
-    border-bottom: 3px solid var(--line);
-    position: sticky;
-    top: 0;
-    z-index: 10;
-  }
-  .home-btn {
-    width: var(--tap);
-    height: var(--tap);
-    display: grid;
-    place-items: center;
-    border: 3px solid var(--line);
-    border-radius: var(--radius);
-    background: var(--panel);
-    box-shadow: var(--shadow);
-    cursor: pointer;
-    font-size: 1.2rem;
-  }
-  .home-btn:active { transform: translateY(3px); box-shadow: none; }
-  .topbar-spacer { width: var(--tap); height: var(--tap); }
-  .game-title-bar { min-width: 0; overflow: hidden; color: var(--ink); font-size: clamp(0.95rem, 3.5vw, 1.25rem); font-weight: 800; text-align: center; text-overflow: ellipsis; white-space: nowrap; }
-  #game-container { width: 100%; max-width: 1100px; margin: 0 auto; flex: 1; padding: var(--page-pad); overflow: visible; }
-
-  .overlay { position: fixed; inset: 0; display: grid; place-items: center; z-index: 100; padding: var(--page-pad); background: rgba(17, 24, 39, 0.72); }
-  .overlay-card { width: min(100%, 390px); padding: clamp(18px, 6vw, 32px); background: var(--panel); border: 3px solid var(--line); border-radius: var(--radius); box-shadow: 0 10px 0 rgba(0,0,0,0.28); text-align: center; }
-  .overlay-card h2 { margin-bottom: 16px; color: var(--ink); font-size: clamp(1.25rem, 5vw, 1.75rem); font-weight: 800; }
-  .overlay-btns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-  .btn, .feeling-btn, .help-btn, .wg-pill-btn, .alpha-mode-btn, .alpha-tip-btn, .song-mode-btn, .done-home-btn {
-    min-height: var(--tap);
-    padding: 10px 14px;
-    border: 3px solid var(--line);
-    border-radius: var(--radius);
-    background: var(--panel);
-    box-shadow: var(--shadow);
-    color: var(--ink);
-    cursor: pointer;
-    font-weight: 800;
-    text-align: center;
-  }
-  .btn:active, .feeling-btn:active, .help-btn:active, .wg-pill-btn:active, .alpha-mode-btn:active, .alpha-tip-btn:active, .song-mode-btn:active, .done-home-btn:active { transform: translateY(3px); box-shadow: none; }
-  .btn-primary { background: var(--primary); color: white; }
-  .btn-secondary { background: var(--soft-gray); color: var(--ink); }
-  .btn-danger { background: #fee2e2; color: var(--bad); }
-
+  /* CONFETTI */
   .confetti-piece { position: fixed; font-size: 1.8rem; pointer-events: none; z-index: 200; animation: confettiFall 2s ease-in forwards; }
   @keyframes confettiFall { 0% { transform: translateY(-40px) rotate(0deg); opacity: 1; } 100% { transform: translateY(105vh) rotate(360deg); opacity: 0; } }
   @keyframes teeBounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
   @keyframes teeWiggle { 0%,100% { transform: rotate(0deg); } 25% { transform: rotate(-8deg); } 75% { transform: rotate(8deg); } }
-  @keyframes bloomIn { 0% { transform: scale(1); } 50% { transform: scale(1.12); } 100% { transform: scale(1); } }
+  @keyframes bloomIn { 0% { transform: scale(1); } 50% { transform: scale(1.3); } 100% { transform: scale(1); } }
   @keyframes leafGrow { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
   .tee-bounce { animation: teeBounce 0.5s ease 3; }
   .tee-wiggle { animation: teeWiggle 0.4s ease 3; }
 
-  .settings-panel { width: 100%; max-width: 520px; margin-top: clamp(14px, 3vw, 24px); padding: clamp(14px, 3vw, 22px); background: var(--panel); border: 3px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
-  .settings-panel h3 { margin-bottom: 14px; color: var(--ink); font-size: 1.1rem; font-weight: 800; }
-  .settings-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 12px; }
-  .settings-label { color: var(--ink); font-size: 1rem; }
-  .toggle { width: 56px; height: 32px; flex: 0 0 auto; border: 2px solid var(--line); border-radius: 999px; background: #d1d5db; position: relative; cursor: pointer; transition: background 0.2s; }
-  .toggle.on { background: #86efac; }
-  .toggle::after { content: ''; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; background: white; border: 2px solid var(--line); border-radius: 50%; transition: left 0.2s; }
+  /* SETTINGS */
+  .settings-panel { background: white; border-radius: 28px; padding: 24px; margin-top: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+  .settings-panel h3 { font-size: 1.1rem; color: var(--wren-soft); margin-bottom: 16px; }
+  .settings-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .settings-label { font-size: 0.95rem; color: var(--wren-soft); }
+  .toggle { width: 52px; height: 28px; background: #ddd; border-radius: 14px; position: relative; cursor: pointer; transition: background 0.2s; }
+  .toggle.on { background: var(--wren-purple); }
+  .toggle::after { content: ''; position: absolute; width: 22px; height: 22px; background: white; border-radius: 50%; top: 3px; left: 3px; transition: left 0.2s; box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
   .toggle.on::after { left: 27px; }
+  .btn-danger { background: #ffb3b3; color: #c0392b; }
 
-  .progress-dots { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin-bottom: clamp(10px, 2vw, 16px); }
-  .progress-dot { width: 14px; height: 14px; border: 2px solid var(--line); border-radius: 50%; background: #d1d5db; }
-  .progress-dot.done { background: var(--good); }
+  /* PROGRESS */
+  .progress-dots { display: flex; justify-content: center; gap: 8px; margin-bottom: 12px; }
+  .progress-dot { width: 14px; height: 14px; border-radius: 50%; background: #e0e0e0; transition: background 0.3s; }
+  .progress-dot.done { background: var(--wren-purple); }
 
-  .forest-bg, .kingdom-bg, .garden-bg, .color-garden-bg, .alphabet-bg, .music-bg {
-    width: 100%;
-    min-height: min(680px, calc(100svh - 86px));
-    display: flex;
-    flex-direction: column;
-    gap: clamp(10px, 2vw, 16px);
-    padding: clamp(12px, 3vw, 24px);
-    background: var(--panel);
-    border: 3px solid var(--line);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    overflow: hidden;
+  /* LETTER FOREST */
+  .forest-bg { background: linear-gradient(180deg, #e8f5e9 0%, #c8e6c9 100%); border-radius: 24px; padding: 20px; min-height: 480px; }
+  .letter-display { text-align: center; margin-bottom: 16px; }
+  .big-letter { font-size: 5rem; font-weight: 900; color: var(--wren-soft); line-height: 1; text-shadow: 0 3px 8px rgba(0,0,0,0.1); }
+  .letter-word { font-size: 1.2rem; color: var(--wren-soft); margin-top: 6px; }
+  .letter-choices { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; margin-top: 14px; }
+  .letter-btn { width: 120px; height: 120px; border-radius: 50%; background: var(--wren-cream); border: 5px solid #c8a96e; box-shadow: 0 4px 0 #a07040, inset 0 1px 3px rgba(255,255,255,0.6); font-size: 3.5rem; font-weight: 900; cursor: pointer; transition: transform 0.1s; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .letter-btn:active { transform: scale(0.92); }
+  .trees-row { display: flex; justify-content: space-around; margin-top: 16px; }
+
+  /* NUMBER KINGDOM */
+  .kingdom-bg { background: linear-gradient(180deg, #e3f4ff 0%, #bde0fe 100%); border-radius: 24px; padding: 20px; min-height: 480px; }
+  .target-display { text-align: center; margin-bottom: 8px; }
+  .target-number { font-size: 5rem; font-weight: 900; color: var(--wren-soft); line-height: 1; }
+  .target-label { font-size: 1rem; color: var(--wren-soft); }
+  .count-display { text-align: center; font-size: 2rem; font-weight: 800; color: var(--wren-purple); margin: 8px 0; }
+  .toys-area { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin: 12px 0; }
+  .toy-btn { width: 80px; height: 80px; border-radius: 50%; background: white; border: 3px solid var(--wren-sky); box-shadow: 0 3px 8px rgba(0,0,0,0.1); font-size: 2.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.1s; }
+  .toy-btn:active { transform: scale(0.9); }
+  .toy-btn.counted { background: var(--wren-sage); border-color: #8bc89b; }
+
+  /* FEELINGS GARDEN */
+  .garden-bg { background: linear-gradient(180deg, #fff0f5 0%, #f4b6c2 100%); border-radius: 24px; padding: 20px; min-height: 480px; }
+  .face-area { display: flex; justify-content: center; margin: 12px 0 20px; }
+  .feeling-choices { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+  .feeling-btn { padding: 14px 18px; border-radius: 20px; background: white; border: 3px solid var(--wren-pink); font-size: 1.2rem; font-weight: 700; color: var(--wren-soft); cursor: pointer; min-width: 130px; min-height: 60px; transition: transform 0.1s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .feeling-btn:active { transform: scale(0.95); }
+  .help-choices { display: flex; flex-direction: column; gap: 12px; align-items: center; }
+  .help-btn { padding: 16px 28px; border-radius: 20px; background: white; border: 3px solid var(--wren-sage); font-size: 1.05rem; font-weight: 700; color: var(--wren-soft); cursor: pointer; min-width: 260px; min-height: 60px; transition: transform 0.1s; }
+  .help-btn:active { transform: scale(0.95); }
+
+  /* COLOR GARDEN (enhanced — 10 colors, 3-column grid) */
+  .color-garden-bg { background: linear-gradient(180deg, #f9fff9 0%, var(--wren-sage) 100%); border-radius: 24px; padding: 20px; min-height: 480px; }
+
+  /* Enhanced garden card wrapper */
+  .wg-card {
+    background: rgba(255,255,255,0.75);
+    border: 2px solid rgba(183,148,212,0.25);
+    border-radius: 20px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
   }
-  .forest-bg { background: var(--soft-green); }
-  .kingdom-bg { background: var(--soft-blue); }
-  .garden-bg { background: var(--soft-orange); }
-  .color-garden-bg { background: #ecfccb; }
-  .alphabet-bg { background: var(--panel-alt); align-items: center; }
-  .music-bg { background: var(--soft-yellow); }
-
-  .letter-display, .target-display { text-align: center; }
-  .big-letter, .target-number { color: var(--ink); font-size: clamp(3.5rem, 18vw, 7.5rem); font-weight: 900; line-height: 0.92; }
-  .letter-word, .target-label { margin-top: 6px; color: var(--ink); font-size: clamp(1rem, 3.5vw, 1.35rem); font-weight: 800; }
-  .letter-choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(84px, 1fr)); gap: clamp(8px, 2vw, 14px); width: min(100%, 520px); margin: 0 auto; }
-  .letter-btn {
-    width: 100%;
-    min-height: clamp(78px, 18vw, 128px);
-    display: grid;
-    place-items: center;
-    border: 3px solid var(--line);
-    border-radius: var(--radius);
-    background: var(--panel);
-    box-shadow: var(--shadow);
-    color: var(--ink) !important;
-    cursor: pointer;
-    font-size: clamp(2.5rem, 10vw, 4.5rem);
-    font-weight: 900;
+  .wg-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+  .wg-header h1 { font-size: 1.2rem; font-weight: 800; color: var(--wren-soft); margin-bottom: 2px; }
+  .wg-header p { font-size: 0.85rem; color: var(--wren-soft); opacity: 0.7; font-weight: normal; }
+  .tee-buddy { font-size: 2.2rem; }
+  @keyframes teeDance {
+    0%,100% { transform: rotate(0deg) scale(1); }
+    25%      { transform: rotate(-15deg) scale(1.2); }
+    75%      { transform: rotate(15deg) scale(1.2); }
   }
-  .letter-btn:active { transform: translateY(3px); box-shadow: none; }
-  .trees-row { display: flex; justify-content: space-around; gap: 8px; margin-top: auto; min-height: 72px; }
-
-  .count-display { color: var(--primary-dark); font-size: clamp(1.5rem, 5vw, 2.5rem); font-weight: 900; text-align: center; }
-  .toys-area { display: grid; grid-template-columns: repeat(auto-fit, minmax(58px, 1fr)); gap: clamp(8px, 2vw, 12px); width: min(100%, 660px); margin: 0 auto; }
-  .toy-btn {
-    min-width: 0;
-    min-height: clamp(58px, 13vw, 88px);
-    display: grid;
-    place-items: center;
-    border: 3px solid var(--line);
-    border-radius: var(--radius);
-    background: var(--panel);
-    box-shadow: var(--shadow);
-    cursor: pointer;
-    font-size: clamp(1.55rem, 5vw, 2.45rem);
-  }
-  .toy-btn:active { transform: translateY(3px); box-shadow: none; }
-  .toy-btn.counted { background: #bbf7d0; border-color: var(--good); }
-
-  .face-area { display: flex; justify-content: center; margin: 4px 0; }
-  .feeling-choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(132px, 1fr)); gap: clamp(8px, 2vw, 12px); width: min(100%, 560px); margin: 0 auto; }
-  .feeling-btn { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: clamp(0.95rem, 3vw, 1.1rem); }
-  .help-choices { display: grid; gap: 10px; width: min(100%, 420px); margin: 0 auto; }
-  .help-btn { width: 100%; font-size: 1rem; }
-
-  .wg-card { width: 100%; padding: clamp(12px, 2.5vw, 18px); background: var(--panel); border: 3px solid var(--line); border-radius: var(--radius); }
-  .wg-header { display: grid; grid-template-columns: minmax(0, 1fr) 54px; gap: 12px; align-items: start; margin-bottom: 10px; }
-  .wg-header h1 { color: var(--ink); font-size: clamp(1.1rem, 4vw, 1.45rem); font-weight: 900; line-height: 1.1; }
-  .wg-header p { color: var(--muted); font-size: 0.95rem; }
-  .tee-buddy { width: 54px; }
-  @keyframes teeDance { 0%,100% { transform: rotate(0deg) scale(1); } 25% { transform: rotate(-8deg) scale(1.06); } 75% { transform: rotate(8deg) scale(1.06); } }
   .tee-buddy.wag { animation: teeDance 0.5s ease; }
-  .garden-prompt-card { padding: 12px; background: var(--panel-alt); border: 2px solid var(--line); border-radius: var(--radius); text-align: center; }
-  .garden-label, .garden-progress-label { color: var(--muted); font-size: 0.75rem; font-weight: 800; letter-spacing: 0; text-transform: uppercase; }
-  .garden-question { min-height: 1.2em; color: var(--ink); font-size: clamp(1.45rem, 6vw, 2rem); font-weight: 900; }
-  .garden-subtext { color: var(--muted); font-size: 0.9rem; }
-  .garden-controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: 8px; margin-top: 10px; }
-  .wg-pill-btn.on { background: #bbf7d0; }
-  .garden-color-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(84px, 1fr)); gap: clamp(8px, 2vw, 12px); width: 100%; }
-  .garden-color-btn {
-    min-width: 0;
-    min-height: clamp(72px, 15vw, 108px);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    border: 3px solid var(--line);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    cursor: pointer;
-    transition: transform 0.12s, box-shadow 0.12s;
-  }
-  .garden-color-btn:active { transform: translateY(3px); box-shadow: none; }
-  .garden-color-btn.rojo { background: #dc2626; }
-  .garden-color-btn.azul { background: #2563eb; }
-  .garden-color-btn.amarillo { background: #facc15; }
-  .garden-color-btn.verde { background: #16a34a; }
-  .garden-color-btn.rosa { background: #db2777; }
-  .garden-color-btn.morado { background: #7e22ce; }
-  .garden-color-btn.naranja { background: #f97316; }
-  .garden-color-btn.negro { background: #111827; }
-  .garden-color-btn.blanco { background: #ffffff; }
-  .garden-color-btn.marron { background: #854d0e; }
-  .garden-color-btn.correct { outline: 5px solid var(--good); animation: correctPulse 0.5s ease; }
-  .garden-color-btn.wrong { outline: 5px solid var(--bad); animation: shake 0.4s ease; }
-  .gcb-flower { font-size: clamp(1.15rem, 4vw, 1.7rem); line-height: 1; }
-  .gcb-name { color: white; font-size: clamp(0.72rem, 2.5vw, 0.92rem); font-weight: 900; text-shadow: 0 1px 2px rgba(0,0,0,0.75); }
-  .gcb-name.dark-text { color: var(--ink); text-shadow: none; }
-  .garden-progress { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-  .garden-stars { min-height: 1.35em; text-align: center; font-size: clamp(1rem, 4vw, 1.35rem); letter-spacing: 0; }
-  @keyframes correctPulse { 0% { transform: scale(1); } 40% { transform: scale(1.04); } 100% { transform: scale(1); } }
-  @keyframes shake { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-6px); } 60% { transform: translateX(6px); } }
 
-  .alpha-mode-bar { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; width: min(100%, 520px); }
-  .alpha-mode-btn.active { background: var(--primary); color: white; }
-  .alpha-mode-label { min-height: 1em; color: var(--muted); font-size: 0.9rem; text-align: center; }
-  .alpha-card { width: 100%; min-height: 0; flex: 1 1 auto; display: grid; place-items: center; align-content: center; gap: 8px; }
-  .alpha-letter-display { color: var(--primary-dark) !important; font-size: clamp(4rem, 20vw, 8rem); font-weight: 900; line-height: 0.95; animation: floatAlpha 3s ease-in-out infinite; }
-  @keyframes floatAlpha { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
-  .alpha-emoji-display { font-size: clamp(2.25rem, 10vw, 4rem); line-height: 1; }
-  .alpha-word-display { color: var(--muted); font-size: clamp(0.9rem, 3vw, 1.1rem); font-weight: 800; letter-spacing: 0; text-transform: uppercase; }
-  .alpha-hard-icon { display: none; font-size: clamp(2.75rem, 10vw, 4.5rem); }
-  .alpha-prompt { min-height: 1.35em; color: var(--ink); font-size: clamp(0.95rem, 3vw, 1.15rem); font-weight: 800; text-align: center; }
-  .alpha-choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(78px, 1fr)); gap: clamp(8px, 2vw, 12px); width: min(100%, 620px); }
-  .alpha-choice-btn {
-    min-width: 0;
-    min-height: clamp(68px, 16vw, 108px);
-    padding: 8px;
-    border: 3px solid var(--line);
-    border-radius: var(--radius);
-    background: var(--panel);
-    box-shadow: var(--shadow);
-    color: var(--ink) !important;
-    cursor: pointer;
-    font-size: clamp(2rem, 8vw, 3.4rem);
-    font-weight: 900;
+  .garden-prompt-card {
+    background: rgba(255,255,255,0.6);
+    border: 1px solid rgba(183,148,212,0.2);
+    border-radius: 14px;
+    padding: 10px 14px;
     text-align: center;
+    margin-bottom: 10px;
   }
-  .alpha-choice-btn:active { transform: translateY(3px); box-shadow: none; }
-  .alpha-choice-btn.correct { background: #bbf7d0 !important; border-color: var(--good) !important; animation: correctPulse 0.5s ease; }
-  .alpha-choice-btn.wrong { background: #fecaca !important; border-color: var(--bad) !important; animation: shake 0.4s ease; }
+  .garden-label { font-size: 0.7rem; letter-spacing: 2px; color: var(--wren-soft); opacity: 0.6; text-transform: uppercase; margin-bottom: 4px; }
+  .garden-question { font-size: 1.5rem; font-weight: 900; color: var(--wren-soft); min-height: 1.4em; }
+  .garden-subtext { font-size: 0.85rem; color: var(--wren-soft); opacity: 0.6; margin-top: 3px; }
 
-  .piano-area { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: clamp(5px, 1.5vw, 10px); width: 100%; flex: 1 1 auto; min-height: clamp(220px, 44svh, 430px); }
-  .piano-key {
-    min-width: 0;
-    min-height: 180px;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    padding: 0 2px 12px;
-    border: 3px solid var(--line) !important;
-    border-radius: var(--radius);
-    box-shadow: 0 5px 0 rgba(17,24,39,0.25);
-    color: var(--ink);
-    cursor: pointer;
-    font-size: clamp(0.95rem, 4vw, 1.45rem);
-    font-weight: 900;
-    transition: transform 0.08s, box-shadow 0.08s;
+  .garden-controls { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 10px; }
+  .wg-pill-btn {
+    font-size: 0.9rem; font-weight: 700;
+    background: rgba(183,148,212,0.2); border: 2px solid rgba(183,148,212,0.4);
+    border-radius: 999px; padding: 8px 16px; cursor: pointer; color: var(--wren-soft);
+    transition: all 0.15s; font-family: inherit; min-height: 44px;
   }
-  .piano-key.pressed { transform: translateY(4px); box-shadow: 0 1px 0 rgba(17,24,39,0.25); }
-  .piano-key.highlight { outline: 5px solid var(--primary); }
-  .music-feedback { min-height: 32px; color: var(--ink); font-size: clamp(1rem, 3.5vw, 1.2rem); font-weight: 800; text-align: center; }
-  .song-mode-btn, .done-home-btn { display: none; width: min(100%, 280px); margin: 0 auto; }
-  .done-home-btn { display: block; background: #bbf7d0; }
+  .wg-pill-btn:active { transform: scale(0.94); }
+  .wg-pill-btn.on { background: rgba(139,200,155,0.4); border-color: #66bb6a; color: #2e7d32; }
 
-  .flower-choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(82px, 1fr)); gap: clamp(10px, 2vw, 16px); width: min(100%, 520px); margin: 0 auto; }
-  .flower-btn { min-width: 0; min-height: clamp(78px, 20vw, 112px); display: grid; place-items: center; border: 3px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); font-size: clamp(2rem, 6vw, 2.7rem); cursor: pointer; transition: transform 0.15s; }
-  .flower-btn:active { transform: translateY(3px); box-shadow: none; }
+  /* 3-column color grid */
+  .garden-color-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .garden-color-btn {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 3px; border-radius: 16px; border: 4px solid rgba(255,255,255,0.35);
+    padding: 10px 4px; cursor: pointer;
+    transition: transform 0.12s, border-color 0.15s, box-shadow 0.15s;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.18);
+    min-height: 80px; font-family: inherit;
+  }
+  .garden-color-btn:active { transform: scale(0.93); }
+  .garden-color-btn.rojo     { background: #e53935; }
+  .garden-color-btn.azul     { background: #1e88e5; }
+  .garden-color-btn.amarillo { background: #fdd835; }
+  .garden-color-btn.verde    { background: #43a047; }
+  .garden-color-btn.rosa     { background: #e91e8c; }
+  .garden-color-btn.morado   { background: #8e24aa; }
+  .garden-color-btn.naranja  { background: #fb8c00; }
+  .garden-color-btn.negro    { background: #263238; }
+  .garden-color-btn.blanco   { background: #f0f0f0; }
+  .garden-color-btn.marron   { background: #6d4c41; }
+  .garden-color-btn.correct  {
+    border-color: #66bb6a !important; border-width: 5px !important;
+    box-shadow: 0 0 22px rgba(102,187,106,0.7) !important;
+    animation: correctPulse 0.5s ease;
+  }
+  .garden-color-btn.wrong {
+    border-color: rgba(239,83,80,0.9) !important; border-width: 5px !important;
+    animation: shake 0.4s ease;
+  }
+  .gcb-flower { font-size: 1.4rem; line-height: 1; }
+  .gcb-name { font-size: 0.8rem; font-weight: 800; color: white; text-shadow: 0 1px 3px rgba(0,0,0,0.5); letter-spacing: 0.5px; }
+  .gcb-name.dark-text { color: rgba(0,0,0,0.65); text-shadow: none; }
+
+  .garden-progress { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .garden-progress-label { font-size: 0.7rem; letter-spacing: 2px; color: var(--wren-soft); opacity: 0.5; text-transform: uppercase; }
+  .garden-stars { font-size: 1.3rem; letter-spacing: 3px; min-height: 1.4em; text-align: center; }
+
+  @keyframes correctPulse {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.1); }
+    100% { transform: scale(1); }
+  }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20%     { transform: translateX(-8px); }
+    60%     { transform: translateX(8px); }
+  }
+
+  /* ALPHABET GAME */
+  .alphabet-bg {
+    background: linear-gradient(180deg, #f5eeff 0%, #e8d5f5 100%);
+    border-radius: 24px; padding: 16px; min-height: 480px;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+  }
+  /* Difficulty mode bar inside alphabet game */
+  .alpha-mode-bar { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  .alpha-mode-btn {
+    font-size: 0.85rem; font-weight: 700;
+    background: rgba(183,148,212,0.15); border: 2px solid rgba(183,148,212,0.3);
+    border-radius: 999px; padding: 6px 16px; cursor: pointer;
+    color: var(--wren-soft); transition: all 0.2s; font-family: inherit; min-height: 40px;
+  }
+  .alpha-mode-btn.active { background: rgba(183,148,212,0.45); border-color: var(--wren-purple); color: var(--wren-purple); }
+  .alpha-mode-btn:active { transform: scale(0.93); }
+  .alpha-mode-label { font-size: 0.78rem; color: var(--wren-soft); opacity: 0.6; text-align: center; min-height: 1em; }
+
+  /* Card area */
+  .alpha-card {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 6px; flex: 1; width: 100%; min-height: 0;
+  }
+  .alpha-letter-display {
+    font-size: 6rem; font-weight: 900; line-height: 1;
+    color: var(--wren-purple); text-shadow: 0 3px 12px rgba(183,148,212,0.5);
+    animation: floatAlpha 3s ease-in-out infinite;
+  }
+  @keyframes floatAlpha {
+    0%,100% { transform: translateY(0) rotate(-2deg); }
+    50%      { transform: translateY(-10px) rotate(2deg); }
+  }
+  .alpha-emoji-display { font-size: 3rem; line-height: 1; }
+  .alpha-word-display { font-size: 1rem; letter-spacing: 3px; text-transform: uppercase; color: var(--wren-soft); opacity: 0.75; }
+  .alpha-hard-icon { font-size: 4rem; display: none; }
+  .alpha-prompt { font-size: 1rem; color: var(--wren-soft); font-weight: 700; text-align: center; min-height: 1.4em; }
+
+  /* Tip button */
+  .alpha-tip-btn {
+    font-size: 1rem; font-weight: 700;
+    background: rgba(183,148,212,0.2); border: 2px solid rgba(183,148,212,0.4);
+    border-radius: 16px; padding: 8px 20px; cursor: pointer; color: var(--wren-soft);
+    font-family: inherit; min-height: 44px;
+  }
+  .alpha-tip-btn:active { transform: scale(0.93); }
+
+  /* Choice buttons (2×2 grid) */
+  .alpha-choices {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px; width: 100%; max-width: 320px;
+  }
+  .alpha-choice-btn {
+    font-size: 2.6rem; font-weight: 900; text-align: center;
+    padding: 16px 0; border-radius: 22px;
+    border: 4px solid rgba(183,148,212,0.3); background: rgba(255,255,255,0.7);
+    cursor: pointer; transition: transform 0.12s, background 0.12s;
+    min-height: 88px; font-family: inherit;
+  }
+  .alpha-choice-btn:active { transform: scale(0.94); }
+  .alpha-choice-btn.correct { background: rgba(139,200,155,0.45) !important; border-color: #66bb6a !important; animation: correctPulse 0.5s ease; }
+  .alpha-choice-btn.wrong   { background: rgba(239,83,80,0.2) !important; border-color: rgba(239,83,80,0.5) !important; animation: shake 0.4s ease; }
+
+  /* MUSIC MAKER */
+  .music-bg { background: linear-gradient(180deg, #fffbf0 0%, #ffd97d44 100%); border-radius: 24px; padding: 16px; min-height: 480px; display: flex; flex-direction: column; }
+  .piano-area { display: flex; gap: 8px; justify-content: center; flex: 1; align-items: stretch; margin: 12px 0; }
+  .piano-key { flex: 1; min-width: 56px; border-radius: 16px; border: none; cursor: pointer; box-shadow: 0 5px 0 rgba(0,0,0,0.18), inset 0 1px 3px rgba(255,255,255,0.4); transition: transform 0.08s; min-height: 200px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 12px; font-size: 1.3rem; font-weight: 800; color: rgba(0,0,0,0.3); }
+  .piano-key.pressed { transform: scaleY(0.95) translateY(3px); box-shadow: 0 2px 0 rgba(0,0,0,0.18); }
+  .piano-key.highlight { box-shadow: 0 0 0 4px white, 0 0 0 7px var(--wren-purple), 0 5px 0 rgba(0,0,0,0.18); }
+  .music-feedback { text-align: center; font-size: 1.1rem; font-weight: 700; color: var(--wren-soft); min-height: 32px; margin: 6px 0; }
+  .song-mode-btn { display: none; margin: 8px auto; padding: 12px 28px; border-radius: 50px; background: var(--wren-purple); color: white; border: none; font-family: inherit; font-size: 1rem; font-weight: 700; cursor: pointer; min-height: 48px; }
+  .done-home-btn { display: block; margin: 8px auto; padding: 12px 32px; border-radius: 50px; background: var(--wren-sage); color: var(--wren-soft); border: none; font-family: inherit; font-size: 1rem; font-weight: 700; cursor: pointer; min-height: 48px; }
+
+  /* FLOWER */
+  .flower-choices { display: flex; flex-wrap: wrap; justify-content: center; gap: 18px; margin: 16px 0; }
+  .flower-btn { width: 110px; height: 110px; border-radius: 50%; border: 4px solid rgba(255,255,255,0.7); box-shadow: 0 4px 14px rgba(0,0,0,0.15); font-size: 2.6rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.15s; }
+  .flower-btn:active { transform: scale(0.92); }
   .flower-btn.bloom { animation: bloomIn 0.5s ease; }
-  .feedback-toast { position: fixed; bottom: max(18px, env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); width: max-content; max-width: calc(100vw - 28px); z-index: 150; padding: 10px 16px; background: var(--panel); border: 3px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); color: var(--ink); font-size: 1rem; font-weight: 800; text-align: center; pointer-events: none; animation: toastPop 1.8s ease forwards; }
+
+  /* TOAST */
+  .feedback-toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: white; border-radius: 20px; padding: 10px 22px; font-size: 1.1rem; font-weight: 700; color: var(--wren-soft); box-shadow: 0 4px 16px rgba(0,0,0,0.15); z-index: 150; pointer-events: none; animation: toastPop 1.8s ease forwards; }
   @keyframes toastPop { 0% { opacity:0; transform:translateX(-50%) translateY(10px); } 15% { opacity:1; transform:translateX(-50%) translateY(0); } 75% { opacity:1; } 100% { opacity:0; transform:translateX(-50%) translateY(-10px); } }
-
-  @media (max-width: 620px) {
-    :root { --tap: 46px; --page-pad: 10px; }
-    .home-header { grid-template-columns: minmax(0, 1fr) 62px; }
-    .stars-row { max-height: 56px; overflow: hidden; }
-    .game-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .overlay-btns { grid-template-columns: 1fr; }
-    .forest-bg, .kingdom-bg, .garden-bg, .color-garden-bg, .alphabet-bg, .music-bg { min-height: calc(100svh - 76px); padding: 10px; }
-    .garden-controls { grid-template-columns: 1fr; }
-    .alpha-mode-bar { grid-template-columns: 1fr; }
-    .piano-area { min-height: 300px; gap: 5px; }
-    .piano-key { border-width: 2px !important; border-radius: 10px; }
-  }
-
-  @media (min-width: 700px) {
-    .game-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .game-card { min-height: clamp(180px, 22vw, 240px); }
-    .garden-color-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
-    .feeling-choices { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .help-choices { grid-template-columns: repeat(3, minmax(0, 1fr)); width: min(100%, 820px); }
-    .letter-choices, .alpha-choices { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  }
-
-  @media (max-width: 380px) {
-    .home-header h1 { font-size: 1.45rem; }
-    .game-grid { gap: 8px; }
-    .game-card { min-height: 108px; padding: 10px 6px; }
-    .game-card .card-title { font-size: 0.88rem; }
-    .letter-choices, .alpha-choices { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .garden-color-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .toys-area { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  }
-
-
-  /* ── TEST ZONE ─────────────────────────────────────────────────────────── */
-  .test-zone { width: 100%; max-width: 1180px; margin: clamp(14px,3vw,24px) auto 0; }
-  .test-zone-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; color: var(--muted); font-size: clamp(0.85rem,2.5vw,1rem); font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; }
-  .game-card-badge { padding: 1px 6px; background: var(--primary); color: white; border-radius: 6px; font-size: 0.6rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em; vertical-align: middle; margin-left: 4px; }
-
-  /* ── PHONICS SOUND FACTORY ──────────────────────────────────────────────── */
-  .phonics-bg { background: #fef3c7; }
-  .phonics-learn-card { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(8px,2vw,14px); flex: 1; text-align: center; }
-  .phonics-letter { font-size: clamp(5rem,22vw,9rem); font-weight: 900; color: var(--primary-dark); line-height: 1; }
-  .phonics-emoji  { font-size: clamp(3rem,12vw,5.5rem); line-height: 1; }
-  .phonics-word   { font-size: clamp(1.1rem,4vw,1.5rem); font-weight: 800; color: var(--ink); }
-  .phonics-choices { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: clamp(8px,2vw,14px); width: min(100%,440px); margin: 0 auto; }
-  .phonics-choice-btn { min-height: clamp(80px,18vw,130px); font-size: clamp(2.5rem,10vw,4.5rem); font-weight: 900; border: 3px solid var(--line); border-radius: var(--radius); background: var(--panel); box-shadow: var(--shadow); cursor: pointer; color: var(--ink); }
-  .phonics-choice-btn:active { transform: translateY(3px); box-shadow: none; }
-  .phonics-choice-btn.correct { background: #bbf7d0 !important; border-color: var(--good) !important; animation: correctPulse 0.5s ease; }
-  .phonics-choice-btn.wrong   { background: #fecaca !important; border-color: var(--bad)  !important; animation: shake 0.4s ease; }
-  .phonics-phase-label { color: var(--muted); font-size: clamp(0.8rem,2.5vw,1rem); font-weight: 800; text-transform: uppercase; text-align: center; }
-
-  /* ── RHYME GARDEN ───────────────────────────────────────────────────────── */
-  .rhyme-bg { background: #fce7f3; }
-  .rhyme-word-row { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(10px,2vw,16px); width: min(100%,460px); margin: 0 auto; }
-  .rhyme-word-card { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: clamp(12px,3vw,22px); background: var(--panel); border: 3px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); text-align: center; }
-  .rhyme-word-emoji { font-size: clamp(2.5rem,10vw,4rem); line-height: 1; }
-  .rhyme-word-text  { font-size: clamp(1rem,3.5vw,1.3rem); font-weight: 900; color: var(--ink); }
-  .rhyme-yn-row     { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(10px,2vw,16px); width: min(100%,380px); margin: 0 auto; }
-  .rhyme-yn-btn { min-height: clamp(64px,16vw,96px); font-size: clamp(1.6rem,6vw,2.8rem); border: 3px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); cursor: pointer; font-weight: 900; }
-  .rhyme-yn-btn:active { transform: translateY(3px); box-shadow: none; }
-  .rhyme-pick-choices { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: clamp(8px,2vw,12px); width: min(100%,520px); margin: 0 auto; }
-  .rhyme-pick-btn { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: clamp(10px,2.5vw,18px) 8px; border: 3px solid var(--line); border-radius: var(--radius); background: var(--panel); box-shadow: var(--shadow); cursor: pointer; touch-action: manipulation; text-align: center; }
-  .rhyme-pick-btn:active { transform: translateY(3px); box-shadow: none; }
-  .rhyme-pick-btn .pick-emoji { font-size: clamp(1.8rem,7vw,3rem); line-height: 1; }
-  .rhyme-pick-btn .pick-word  { font-size: clamp(0.85rem,2.5vw,1.05rem); font-weight: 900; color: var(--ink); }
-  .rhyme-pick-btn.correct { background: #bbf7d0 !important; border-color: var(--good) !important; animation: correctPulse 0.5s ease; }
-  .rhyme-pick-btn.wrong   { background: #fecaca !important; border-color: var(--bad)  !important; animation: shake 0.4s ease; }
-
-  /* ── RHYTHM & BEAT ──────────────────────────────────────────────────────── */
-  .rhythm-bg { background: #ede9fe; }
-  .rhythm-pads-row { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: clamp(12px,3vw,22px); width: min(100%,480px); margin: 0 auto; }
-  .beat-pad { min-height: clamp(100px,24vw,180px); border: 4px solid var(--line); border-radius: clamp(16px,4vw,28px); box-shadow: 0 6px 0 rgba(17,24,39,0.25); cursor: pointer; touch-action: manipulation; transition: transform 0.08s, box-shadow 0.08s, filter 0.08s; display: flex; align-items: center; justify-content: center; font-size: clamp(2rem,8vw,3.5rem); }
-  .beat-pad:active, .beat-pad.lit { transform: translateY(5px); box-shadow: 0 1px 0 rgba(17,24,39,0.25); filter: brightness(1.18); }
-  .rhythm-status { min-height: 2em; font-size: clamp(1rem,3.5vw,1.25rem); font-weight: 800; color: var(--ink); text-align: center; }
-  .rhythm-tee-row { display: flex; justify-content: center; }
-
 </style>
 </head>
 <body>
@@ -427,7 +293,6 @@
   <div id="home-screen">
     <div class="home-header">
       <h1 id="home-greeting">Hi Wren! &#x1F49C;</h1>
-      <div class="stars-row" id="total-stars-row"></div>
       <div class="header-tee" id="header-tee"></div>
     </div>
     <div class="home-body">
@@ -439,7 +304,7 @@
     <div class="game-topbar">
       <button class="home-btn" id="home-btn" aria-label="Go home">&#x1F3E0;</button>
       <div class="game-title-bar" id="game-title-bar"></div>
-      <div class="topbar-spacer" aria-hidden="true"></div>
+      <div style="width:48px"></div>
     </div>
     <div id="game-container"></div>
   </div>
@@ -470,12 +335,10 @@ function chime(type) {
     } else if (type === 'wrong') {
       const o = ac.createOscillator(), g = ac.createGain();
       o.connect(g); g.connect(ac.destination);
-      o.type = 'sine';
-      o.frequency.setValueAtTime(330, now);
-      o.frequency.exponentialRampToValueAtTime(220, now+0.18);
-      g.gain.setValueAtTime(0.13, now);
-      g.gain.exponentialRampToValueAtTime(0.001, now+0.22);
-      o.start(now); o.stop(now+0.25);
+      o.type = 'sine'; o.frequency.value = 200;
+      g.gain.setValueAtTime(0.12, now);
+      g.gain.exponentialRampToValueAtTime(0.001, now+0.08);
+      o.start(now); o.stop(now+0.1);
     } else if (type === 'celebrate') {
       [261,294,330,392,440].forEach((f,i) => {
         const o = ac.createOscillator(), g = ac.createGain();
@@ -503,38 +366,28 @@ function playNote(freq) {
 }
 
 // ── SPEECH ────────────────────────────────────
-// Preload voices so they're ready on first speak() call
-if (typeof speechSynthesis !== 'undefined') {
-  speechSynthesis.getVoices();
-  speechSynthesis.onvoiceschanged = function() { speechSynthesis.getVoices(); };
-}
-
 function speak(text, lang, rate) {
   lang = lang || 'en-US'; rate = rate || 0.9;
   if (!state.settings.speechEnabled) return;
-  // Chrome desktop: cancel() immediately followed by speak() silently drops the utterance.
-  // A 50ms gap reliably avoids this.
-  try { speechSynthesis.cancel(); } catch(e) {}
-  setTimeout(function() {
-    try {
-      const u = new SpeechSynthesisUtterance(text);
-      u.rate = rate; u.pitch = 1.1; u.volume = 1; u.lang = lang;
-      if (lang.startsWith('es')) {
-        const vs = speechSynthesis.getVoices();
-        const pref = ['Paulina','Monica','Juan'];
-        let v = null;
-        for (const n of pref) { v = vs.find(x => x.name.includes(n)); if (v) break; }
-        if (!v) v = vs.find(x => x.lang && x.lang.startsWith('es') && x.localService);
-        if (!v) v = vs.find(x => x.lang && x.lang.startsWith('es'));
-        if (v) u.voice = v;
-      } else if (state.settings.voiceName) {
-        const vs = speechSynthesis.getVoices();
-        const v = vs.find(x => x.name === state.settings.voiceName);
-        if (v) u.voice = v;
-      }
-      speechSynthesis.speak(u);
-    } catch(e) {}
-  }, 50);
+  try {
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.rate = rate; u.pitch = 1.1; u.volume = 1; u.lang = lang;
+    if (lang.startsWith('es')) {
+      const vs = speechSynthesis.getVoices();
+      const pref = ['Paulina','Monica','Juan'];
+      let v = null;
+      for (const n of pref) { v = vs.find(x => x.name.includes(n)); if (v) break; }
+      if (!v) v = vs.find(x => x.lang && x.lang.startsWith('es') && x.localService);
+      if (!v) v = vs.find(x => x.lang && x.lang.startsWith('es'));
+      if (v) u.voice = v;
+    } else if (state.settings.voiceName) {
+      const vs = speechSynthesis.getVoices();
+      const v = vs.find(x => x.name === state.settings.voiceName);
+      if (v) u.voice = v;
+    }
+    speechSynthesis.speak(u);
+  } catch(e) {}
 }
 
 // ── h() HELPER ────────────────────────────────
@@ -561,9 +414,8 @@ function h(tag, attrs) {
 
 // ── STATE ─────────────────────────────────────
 var DEFAULT_STATE = {
-  version: 1,
-  stars: { 'letter-forest':0, 'number-kingdom':0, 'color-garden':0, 'music-maker':0, 'wren-alphabet':0, 'phonics-factory':0, 'rhyme-garden':0, 'rhythm-beat':0 },
-  unlocks: { 'number-kingdom-1-10': false, 'color-garden-free-play': false },
+  version: 2,
+  unlocks: { 'number-kingdom-1-10': true, 'color-garden-free-play': true },
   settings: { speechEnabled: true, voiceName: null }
 };
 
@@ -574,13 +426,10 @@ function loadState() {
     var raw = localStorage.getItem('wrensWorld');
     if (raw) {
       var s = JSON.parse(raw);
-      if (s.version === 1) {
-        // Ensure new game star keys exist for saves from before this module was added
-        if (!s.stars) s.stars = {};
-        if (s.stars['wren-alphabet']    === undefined) s.stars['wren-alphabet']    = 0;
-        if (s.stars['phonics-factory']  === undefined) s.stars['phonics-factory']  = 0;
-        if (s.stars['rhyme-garden']     === undefined) s.stars['rhyme-garden']     = 0;
-        if (s.stars['rhythm-beat']      === undefined) s.stars['rhythm-beat']      = 0;
+      if (s.version === 2) {
+        if (!s.unlocks) s.unlocks = DEFAULT_STATE.unlocks;
+        s.unlocks['number-kingdom-1-10'] = true;
+        s.unlocks['color-garden-free-play'] = true;
         return s;
       }
     }
@@ -592,9 +441,6 @@ function saveState() {
   try { localStorage.setItem('wrensWorld', JSON.stringify(state)); } catch(e) {}
 }
 
-function totalStars() {
-  return Object.values(state.stars).reduce(function(a,b){ return a+b; }, 0);
-}
 
 // ── TEE SVG ───────────────────────────────────
 function drawTee(mood, size) {
@@ -650,19 +496,6 @@ function showToast(msg) {
   setTimeout(function(){ t.remove(); }, 1900);
 }
 
-// ── STAR AWARD ────────────────────────────────
-function awardStar(gameId, callback) {
-  if (state.stars[gameId] >= 5) { if (callback) callback(); return; }
-  state.stars[gameId]++;
-  if (gameId === 'number-kingdom' && state.stars[gameId] === 1) state.unlocks['number-kingdom-1-10'] = true;
-  if (gameId === 'color-garden' && state.stars[gameId] === 1) state.unlocks['color-garden-free-play'] = true;
-  saveState();
-  spawnConfetti();
-  chime('celebrate');
-  speak('Amazing Wren! You earned a star!');
-  animateHeaderTee('excited');
-  setTimeout(function(){ if (callback) callback(); }, 2200);
-}
 
 function animateHeaderTee(mood) {
   var teeEl = document.getElementById('header-tee');
@@ -716,16 +549,10 @@ function showConfirmHome() {
 
 // ── HOME RENDER ───────────────────────────────
 // 6 games — grid is 2 columns × 3 rows, no wide card needed
-
-var TEST_GAMES = [
-  { id:'phonics-factory', title:'Sound Factory',  emoji:'🗣️', color:'#fde68a' },
-  { id:'rhyme-garden',    title:'Rhyme Garden',   emoji:'🎵',       color:'#fbcfe8' },
-  { id:'rhythm-beat',     title:'Rhythm & Beat',  emoji:'🥁',       color:'#ddd6fe' },
-];
-
 var GAMES = [
   { id:'letter-forest',   title:'Letter Forest',   emoji:'\uD83C\uDF33', color:'#c8e6c9' },
   { id:'number-kingdom',  title:'Number Kingdom',  emoji:'\uD83D\uDC76', color:'#bde0fe' },
+  { id:'feelings-garden', title:'Feelings Garden', emoji:'\uD83C\uDF38', color:'#f4b6c2' },
   { id:'color-garden',    title:'Color Garden',    emoji:'\uD83C\uDF3A', color:'#c8e6c9' },
   { id:'music-maker',     title:'Music Maker',     emoji:'\uD83C\uDFB5', color:'#ffd97d' },
   { id:'wren-alphabet',   title:"Wren's Alphabet", emoji:'\uD83D\uDD24', color:'#e8d5f5' },
@@ -733,16 +560,6 @@ var GAMES = [
 
 function renderHome() {
   document.getElementById('header-tee').innerHTML = drawTee('happy', 90);
-  var total = totalStars();
-  var maxStars = Object.keys(state.stars).length * 5;
-  var starsRow = document.getElementById('total-stars-row');
-  starsRow.innerHTML = '';
-  for (var i = 0; i < maxStars; i++) {
-    var s = document.createElement('span');
-    s.className = 'star-dot';
-    s.textContent = i < total ? '\u2B50' : '\u2729';
-    starsRow.appendChild(s);
-  }
   // greeting tap handler - reassign each render
   var greeting = document.getElementById('home-greeting');
   var newGreeting = greeting.cloneNode(true);
@@ -752,39 +569,13 @@ function renderHome() {
   var grid = document.getElementById('game-grid');
   grid.innerHTML = '';
   GAMES.forEach(function(g) {
-    var stars = state.stars[g.id] || 0;
     var card = h('div', {'class': 'game-card', style:{borderColor: g.color}},
       h('div', {'class':'card-emoji'}, g.emoji),
-      h('div', {'class':'card-title'}, g.title),
-      h('div', {'class':'card-stars'}, Array.from({length:5}, function(_,j){ return j<stars?'\u2B50':'\u2729'; }).join(''))
+      h('div', {'class':'card-title'}, g.title)
     );
-    // closure to capture the right id on each iteration
     (function(id){ card.addEventListener('click', function(){ startGame(id); }); })(g.id);
     grid.appendChild(card);
   });
-  // ── Test Zone ──
-  var testZoneEl = document.getElementById('test-zone');
-  if (!testZoneEl) {
-    testZoneEl = document.createElement('div');
-    testZoneEl.id = 'test-zone';
-    testZoneEl.className = 'test-zone';
-    document.querySelector('.home-body').insertBefore(testZoneEl, document.getElementById('settings-area'));
-  }
-  testZoneEl.innerHTML = '';
-  testZoneEl.appendChild(h('div', {'class':'test-zone-header'}, '🧪 Test Zone — New Games'));
-  var testGrid = h('div', {'class':'game-grid'});
-  TEST_GAMES.forEach(function(g) {
-    var stars = state.stars[g.id] || 0;
-    var badge = h('span', {'class':'game-card-badge'}, 'NEW');
-    var card = h('div', {'class':'game-card', style:{borderColor: g.color}},
-      h('div', {'class':'card-emoji'}, g.emoji),
-      h('div', {'class':'card-title'}, g.title, badge),
-      h('div', {'class':'card-stars'}, Array.from({length:5}, function(_,j){ return j<stars?'⭐':'✩'; }).join(''))
-    );
-    (function(id){ card.addEventListener('click', function(){ startGame(id); }); })(g.id);
-    testGrid.appendChild(card);
-  });
-  testZoneEl.appendChild(testGrid);
   renderSettingsArea();
 }
 
@@ -805,23 +596,12 @@ function renderSettingsArea() {
     tog.classList.toggle('on', state.settings.speechEnabled);
     saveState();
   });
-  var resetBtn = h('button', {'class':'btn btn-danger', style:{marginTop:'8px',width:'100%'}}, '\uD83D\uDD04 Reset All Stars');
-  resetBtn.addEventListener('click', function(){
-    if (confirm('Reset all stars? This cannot be undone.')) {
-      state = JSON.parse(JSON.stringify(DEFAULT_STATE));
-      saveState(); settingsVisible = false; renderHome();
-    }
-  });
   var panel = h('div', {'class':'settings-panel'},
     h('h3', {}, '\u2699\uFE0F Parent Settings'),
     h('div', {'class':'settings-row'},
       h('span', {'class':'settings-label'}, '\uD83D\uDD0A Speech'),
       tog
-    ),
-    h('div', {'class':'settings-row'},
-      h('span', {'class':'settings-label'}, '\uD83C\uDF1F Total Stars: '+totalStars()+'/'+(Object.keys(state.stars).length*5))
-    ),
-    resetBtn
+    )
   );
   area.appendChild(panel);
 }
@@ -830,12 +610,10 @@ function startGame(id) {
   var mod;
   if (id==='letter-forest')   mod = new LetterForestModule();
   else if (id==='number-kingdom')  mod = new NumberKingdomModule();
+  else if (id==='feelings-garden') mod = new FeelingsGardenModule();
   else if (id==='color-garden')    mod = new ColorGardenModule();
   else if (id==='music-maker')     mod = new MusicMakerModule();
   else if (id==='wren-alphabet')   mod = new AlphabetGame(shell);
-  else if (id==='phonics-factory')  mod = new PhonicsModule();
-  else if (id==='rhyme-garden')      mod = new RhymeModule();
-  else if (id==='rhythm-beat')       mod = new RhythmModule();
   if (mod) launchGame(mod);
 }
 
@@ -845,7 +623,7 @@ var shell = {
   speak: speak,
   chime: chime,
   complete: function(id) {
-    awardStar(id, function(){ showHome(); });
+    showHome();
   }
 };
 
@@ -900,7 +678,7 @@ LetterForestModule.prototype.renderRound = function() {
 
   var choicesDiv = h('div', {'class':'letter-choices', id:'lf-choices'});
   choices.forEach(function(c) {
-    var btn = h('button', {'class':'letter-btn'}, c.letter);
+    var btn = h('button', {'class':'letter-btn', style:{color: c===target?'#7d3f8c':'#8b6914'}}, c.letter);
     btn.addEventListener('click', function(){ self.handleChoice(c===target, btn, target); });
     choicesDiv.appendChild(btn);
   });
@@ -964,15 +742,13 @@ LetterForestModule.prototype.handleChoice = function(correct, btn, target) {
     if (treesRow) { treesRow.innerHTML = ''; self.buildTrees(treesRow); }
     self.round++;
     if (self.round % 5 === 0) {
-      self.timers.push(setTimeout(function(){
-        awardStar(self.id, function(){ showHome(); });
-      }, 1500));
+      self.timers.push(setTimeout(showHome, 1500));
     } else {
       self.timers.push(setTimeout(function(){ self.renderRound(); }, 1500));
     }
   } else {
     chime('wrong');
-    speak('Oops! Find the letter ' + target.letter + '!');
+    speak('Try again!');
     btn.style.background = '#ffe0e0';
     self.timers.push(setTimeout(function(){ btn.style.background = ''; }, 600));
   }
@@ -1059,7 +835,6 @@ NumberKingdomModule.prototype.handleToyTap = function(idx, btn) {
   var numWordsFull = ['one','two','three','four','five','six','seven','eight','nine','ten'];
 
   if (this.currentCount >= this.targetNum) {
-    chime('wrong');
     speak("That's enough! The baby has "+numWordsFull[this.targetNum-1]+" now.");
     self.timers.push(setTimeout(function(){ self.nextRound(); }, 2000));
     return;
@@ -1086,9 +861,152 @@ NumberKingdomModule.prototype.nextRound = function() {
   var self = this;
   this.round++;
   if (this.round % 5 === 0) {
-    awardStar(this.id, function(){ showHome(); });
+    showHome();
   } else {
     this.renderRound();
+  }
+};
+
+// ── GAME 3: FEELINGS GARDEN ───────────────────
+function FeelingsGardenModule() {
+  this.id = 'feelings-garden';
+  this.title = 'Feelings Garden';
+  this.emoji = '\uD83C\uDF38';
+  this.color = '#f4b6c2';
+  this.timers = [];
+  this.container = null;
+  this.round = 0;
+  this.feelings = [
+    {name:'happy', emoji:'\uD83D\uDE0A', label:'Happy', color:'#ffd97d'},
+    {name:'sad',   emoji:'\uD83D\uDE22', label:'Sad',   color:'#bde0fe'},
+    {name:'mad',   emoji:'\uD83D\uDE20', label:'Mad',   color:'#ffcc80'},
+    {name:'scared',emoji:'\uD83D\uDE28', label:'Scared',color:'#ce93d8'},
+  ];
+  this.helpOptions = [
+    {emoji:'\uD83E\uDEB4', label:'Give a hug'},
+    {emoji:'\uD83C\uDF2C\uFE0F', label:'Take a deep breath'},
+    {emoji:'\uD83D\uDE4B', label:'Ask a grown-up'},
+    {emoji:'\uD83E\uDDF8', label:'Snuggle a friend'},
+  ];
+}
+
+FeelingsGardenModule.prototype.mount = function(container) {
+  this.container = container; this.round = 0; this.renderPhaseA();
+};
+
+FeelingsGardenModule.prototype.unmount = function() {
+  this.timers.forEach(clearTimeout); this.timers = [];
+  speechSynthesis.cancel();
+  if (this.container) this.container.innerHTML = '';
+};
+
+FeelingsGardenModule.prototype.shuffle = function(arr) {
+  return arr.slice().sort(function(){ return Math.random()-0.5; });
+};
+
+FeelingsGardenModule.prototype.makeFaceSVG = function(feeling) {
+  var bgMap = {happy:'#fff9c4', sad:'#e3f2fd', mad:'#fff3e0', scared:'#f3e5f5'};
+  var bg = bgMap[feeling] || '#fff';
+  var faceMap = {
+    happy: '<circle cx="40" cy="40" r="4.5" fill="#5c3d2e"/><circle cx="60" cy="40" r="4.5" fill="#5c3d2e"/><circle cx="38" cy="38" r="1.5" fill="white" opacity="0.7"/><circle cx="58" cy="38" r="1.5" fill="white" opacity="0.7"/><path d="M33 53 Q50 63 67 53" stroke="#5c3d2e" stroke-width="3" fill="none" stroke-linecap="round"/>',
+    sad: '<ellipse cx="40" cy="41" rx="4" ry="5" fill="#5c3d2e"/><ellipse cx="60" cy="41" rx="4" ry="5" fill="#5c3d2e"/><circle cx="38.5" cy="39" r="1.4" fill="white" opacity="0.7"/><circle cx="58.5" cy="39" r="1.4" fill="white" opacity="0.7"/><path d="M38 57 Q50 51 62 57" stroke="#5c3d2e" stroke-width="2.5" fill="none" stroke-linecap="round"/><ellipse cx="60" cy="48" rx="3" ry="5" fill="#90caf9" opacity="0.55"/>',
+    mad: '<line x1="32" y1="35" x2="46" y2="39" stroke="#5c3d2e" stroke-width="2.5" stroke-linecap="round"/><line x1="54" y1="39" x2="68" y2="35" stroke="#5c3d2e" stroke-width="2.5" stroke-linecap="round"/><ellipse cx="40" cy="42" rx="4" ry="4.5" fill="#5c3d2e"/><ellipse cx="60" cy="42" rx="4" ry="4.5" fill="#5c3d2e"/><path d="M40 57 Q50 53 60 57" stroke="#5c3d2e" stroke-width="2.5" fill="none" stroke-linecap="round"/>',
+    scared: '<ellipse cx="40" cy="40" rx="5.5" ry="6.5" fill="#5c3d2e"/><ellipse cx="60" cy="40" rx="5.5" ry="6.5" fill="#5c3d2e"/><circle cx="38" cy="37.5" r="1.8" fill="white" opacity="0.7"/><circle cx="58" cy="37.5" r="1.8" fill="white" opacity="0.7"/><ellipse cx="50" cy="57" rx="6" ry="4.5" fill="#5c3d2e" opacity="0.65"/>',
+  };
+  return '<svg width="110" height="110" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">'
+    + '<circle cx="50" cy="50" r="46" fill="'+bg+'" stroke="#f0c8d4" stroke-width="2"/>'
+    + '<circle cx="50" cy="47" r="28" fill="#f5e6c8"/>'
+    + (faceMap[feeling] || faceMap.happy)
+    + '</svg>';
+};
+
+FeelingsGardenModule.prototype.renderPhaseA = function() {
+  if (!this.container) return;
+  this.container.innerHTML = '';
+  var self = this;
+  var target = this.feelings[this.round % this.feelings.length];
+  var others = this.shuffle(this.feelings.filter(function(f){ return f.name !== target.name; })).slice(0,2);
+  var choices = this.shuffle([target].concat(others));
+
+  var progressRow = h('div', {'class':'progress-dots'});
+  for (var i=0;i<5;i++) progressRow.appendChild(h('div', {'class':'progress-dot'+(i<(self.round%5)?' done':'')}));
+
+  var faceDiv = document.createElement('div');
+  faceDiv.innerHTML = self.makeFaceSVG(target.name);
+
+  var choicesDiv = h('div', {'class':'feeling-choices'});
+  choices.forEach(function(c) {
+    var btn = h('button', {'class':'feeling-btn'}, c.emoji + ' ' + c.label);
+    btn.addEventListener('click', function(){ self.handleFeelingChoice(c===target, c, target); });
+    choicesDiv.appendChild(btn);
+  });
+
+  var bg = h('div', {'class':'garden-bg'},
+    progressRow,
+    h('div', {style:{textAlign:'center',marginBottom:'6px'}},
+      h('p', {style:{fontSize:'1rem',color:'var(--wren-soft)',fontWeight:'700'}}, 'How is this friend feeling?')
+    ),
+    h('div', {'class':'face-area'}, faceDiv),
+    choicesDiv
+  );
+  this.container.appendChild(bg);
+  this.timers.push(setTimeout(function(){ speak('How is this friend feeling?'); }, 300));
+};
+
+FeelingsGardenModule.prototype.handleFeelingChoice = function(correct, chosen, target) {
+  var self = this;
+  if (correct) {
+    chime('correct');
+    speak("Yes! Your friend is "+target.label+"!");
+    self.timers.push(setTimeout(function(){ self.renderPhaseB(target); }, 1200));
+  } else {
+    chime('wrong'); speak('Try again!');
+  }
+};
+
+FeelingsGardenModule.prototype.renderPhaseB = function(feeling) {
+  if (!this.container) return;
+  this.container.innerHTML = '';
+  var self = this;
+  var helpChoices = this.shuffle(this.helpOptions).slice(0,3);
+
+  var faceDiv = document.createElement('div');
+  faceDiv.innerHTML = self.makeFaceSVG(feeling.name);
+  faceDiv.style.textAlign = 'center';
+
+  var helpDiv = h('div', {'class':'help-choices'});
+  helpChoices.forEach(function(opt) {
+    var btn = h('button', {'class':'help-btn'}, opt.emoji + ' ' + opt.label);
+    btn.addEventListener('click', function(){ self.handleHelpChoice(opt); });
+    helpDiv.appendChild(btn);
+  });
+
+  var teeSvg = document.createElement('div');
+  teeSvg.innerHTML = drawTee('calm', 60);
+  teeSvg.style.cssText = 'text-align:center;margin-top:12px;';
+
+  var bg = h('div', {'class':'garden-bg'},
+    h('div', {style:{textAlign:'center',marginBottom:'8px'}},
+      faceDiv,
+      h('p', {style:{fontSize:'1rem',color:'var(--wren-soft)',fontWeight:'700',marginTop:'8px'}}, 'What can help your friend?')
+    ),
+    helpDiv,
+    teeSvg
+  );
+  this.container.appendChild(bg);
+  this.timers.push(setTimeout(function(){ speak('What can help your friend?'); }, 300));
+};
+
+FeelingsGardenModule.prototype.handleHelpChoice = function(opt) {
+  var self = this;
+  chime('correct');
+  speak('Great idea!');
+  showToast('Great idea! ' + opt.emoji);
+  self.round++;
+  if (self.round % 5 === 0) {
+    self.timers.push(setTimeout(showHome, 1500));
+  } else {
+    self.timers.push(setTimeout(function(){ self.renderPhaseA(); }, 1500));
   }
 };
 
@@ -1198,7 +1116,7 @@ ColorGardenModule.prototype.render = function() {
 
   this.updateStars();
   this.timers.push(setTimeout(function(){
-    speak("Hi Wren! Welcome to the Color Garden! Tap Start when you're ready!");
+    speak("Hi Wren! Let's learn colors! Tap Start when you're ready!");
   }, 300));
 };
 
@@ -1289,7 +1207,7 @@ ColorGardenModule.prototype.handleColorTap = function(colorData, btn) {
     if (this.score > 0 && this.score % 5 === 0) {
       self.timers.push(setTimeout(function(){
         btn.classList.remove('correct');
-        awardStar(self.id, function(){ showHome(); });
+        showHome();
       }, 2000));
     } else {
       self.timers.push(setTimeout(function(){
@@ -1315,7 +1233,6 @@ function MusicMakerModule() {
   this.timers = [];
   this.container = null;
   this.tapsPlayed = 0;
-  this.sessionStarGiven = !!sessionStorage.getItem('musicMakerStarGiven');
   this.inSongMode = false;
   this.currentSong = 0;
   this.userTaps = 0;
@@ -1388,13 +1305,7 @@ MusicMakerModule.prototype.renderFreePlay = function() {
 };
 
 MusicMakerModule.prototype.handleDone = function() {
-  if (!this.sessionStarGiven) {
-    sessionStorage.setItem('musicMakerStarGiven','1');
-    this.sessionStarGiven = true;
-    awardStar(this.id, function(){ showHome(); });
-  } else {
-    showHome();
-  }
+  showHome();
 };
 
 MusicMakerModule.prototype.startSongMode = function() {
@@ -1425,12 +1336,8 @@ MusicMakerModule.prototype.renderSongMode = function() {
         speak('Beautiful music, Wren!');
         if (feedbackEl) feedbackEl.textContent = 'Beautiful music! \uD83C\uDF1F';
         self.songsCompleted++;
-        if (self.songsCompleted >= 3 && !self.sessionStarGiven) {
-          sessionStorage.setItem('musicMakerStarGiven','1');
-          self.sessionStarGiven = true;
-          self.timers.push(setTimeout(function(){
-            awardStar(self.id, function(){ showHome(); });
-          }, 1500));
+        if (self.songsCompleted >= 3) {
+          self.timers.push(setTimeout(showHome, 1500));
         } else {
           self.currentSong++;
           self.timers.push(setTimeout(function(){ self.renderSongMode(); }, 2000));
@@ -1487,9 +1394,9 @@ class AlphabetGame {
     this.correct = 0;           // correct answers this session
 
     this.MODE_META = {
-      easy:   { label: 'See the letter, emoji & word',    hint: 'Find the letter...' },
-      medium: { label: 'No letter \u2014 just the picture!',   hint: 'What letter goes with...' },
-      hard:   { label: 'Listen carefully \u2014 no pictures!', hint: 'Listen and find the letter...' },
+      easy:   { label: 'See the letter and picture!',     hint: 'Find the letter...' },
+      medium: { label: 'Just the picture \u2014 find the letter!', hint: 'What letter is it?' },
+      hard:   { label: 'Listen and find the letter!',     hint: 'Listen and find it...' },
     };
 
     this.LETTERS = [
@@ -1548,10 +1455,7 @@ class AlphabetGame {
   }
 
   _scheduleFirst() {
-    this._t(() => {
-      speak("Hi Wren! Let's find some letters! Ready?");
-      this._t(() => this._nextQuestion(), 1800);
-    }, 300);
+    this._nextQuestion();
   }
 
   render() {
@@ -1573,13 +1477,15 @@ class AlphabetGame {
       const btn = document.createElement('button');
       btn.className = 'alpha-mode-btn' + (this.mode === m.key ? ' active' : '');
       btn.textContent = m.label;
-      btn.addEventListener('click', () => {
+      const onSelect = () => {
         this.mode = m.key;
         modeBar.querySelectorAll('.alpha-mode-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         modeLabel.textContent = this.MODE_META[this.mode].label;
         this._nextQuestion();
-      });
+      };
+      btn.addEventListener('click', onSelect);
+      btn.addEventListener('touchstart', e => { e.preventDefault(); onSelect(); }, { passive: false });
       modeBar.appendChild(btn);
     });
     bg.appendChild(modeBar);
@@ -1663,7 +1569,7 @@ class AlphabetGame {
     const hardIcon = document.createElement('div');
     hardIcon.className = 'alpha-hard-icon';
     hardIcon.textContent = '\uD83C\uDFA7';
-    hardIcon.style.display = this.mode === 'hard' ? '' : 'none';
+    hardIcon.style.display = this.mode === 'hard' ? 'block' : 'none';
     card.appendChild(hardIcon);
 
     // ── Render choices ──
@@ -1711,7 +1617,7 @@ class AlphabetGame {
     } else {
       chime('wrong');
       btn.classList.add('wrong');
-      speak('No, that is ' + btn.textContent + '! Try again!');
+      speak('Oops! That is ' + btn.textContent + '! Try again!');
       this._t(() => btn.classList.remove('wrong'), 500);
     }
   }
@@ -1733,491 +1639,6 @@ if (typeof speechSynthesis !== 'undefined') {
   speechSynthesis.getVoices();
   speechSynthesis.onvoiceschanged = function(){};
 }
-
-// ── GAME 7: PHONICS SOUND FACTORY ────────────────────────────────────────────
-function PhonicsModule() {
-  this.id = 'phonics-factory';
-  this.title = 'Sound Factory';
-  this.emoji = '🗣️';
-  this.color = '#fde68a';
-  this.timers = [];
-  this.container = null;
-  this.round = 0;
-  this.locked = false;
-  this.currentIdx = 0;
-  // Jolly Phonics order: high-frequency consonants first, then vowels, then rest
-  this.letters = [
-    { l:'S', word:'Star',     emoji:'⭐' },
-    { l:'A', word:'Apple',    emoji:'🍎' },
-    { l:'T', word:'Teddy',    emoji:'🧸' },
-    { l:'P', word:'Penguin',  emoji:'🐧' },
-    { l:'N', word:'Nest',     emoji:'🪺' },
-    { l:'I', word:'Ice cream',emoji:'🍦' },
-    { l:'C', word:'Cat',      emoji:'🐱' },
-    { l:'E', word:'Elephant', emoji:'🐘' },
-    { l:'H', word:'Heart',    emoji:'❤️' },
-    { l:'R', word:'Rainbow',  emoji:'🌈' },
-    { l:'M', word:'Moon',     emoji:'🌙' },
-    { l:'D', word:'Dog',      emoji:'🐕' },
-    { l:'G', word:'Giraffe',  emoji:'🦒' },
-    { l:'O', word:'Orange',   emoji:'🍊' },
-    { l:'U', word:'Unicorn',  emoji:'🦄' },
-    { l:'L', word:'Lion',     emoji:'🦁' },
-    { l:'F', word:'Frog',     emoji:'🐸' },
-    { l:'B', word:'Bear',     emoji:'🐻' },
-    { l:'W', word:'Wren',     emoji:'👧' },
-    { l:'J', word:'Juice',    emoji:'🧃' },
-    { l:'K', word:'Kite',     emoji:'🪁' },
-    { l:'V', word:'Violin',   emoji:'🎻' },
-    { l:'Q', word:'Queen',    emoji:'👸' },
-    { l:'X', word:'X-ray',    emoji:'🦴' },
-    { l:'Y', word:'Yo-yo',    emoji:'🪀' },
-    { l:'Z', word:'Zebra',    emoji:'🦓' },
-  ];
-}
-
-PhonicsModule.prototype.mount = function(container) {
-  this.container = container;
-  this.round = 0; this.currentIdx = 0; this.locked = false;
-  this.renderLearn();
-};
-
-PhonicsModule.prototype.unmount = function() {
-  this.timers.forEach(clearTimeout); this.timers = [];
-  speechSynthesis.cancel();
-  if (this.container) this.container.innerHTML = '';
-};
-
-PhonicsModule.prototype.shuffle = function(arr) {
-  return arr.slice().sort(function(){ return Math.random()-0.5; });
-};
-
-PhonicsModule.prototype.renderLearn = function() {
-  if (!this.container) return;
-  this.container.innerHTML = '';
-  var self = this;
-  var letter = this.letters[this.currentIdx % this.letters.length];
-
-  var progressRow = h('div', {'class':'progress-dots'});
-  for (var i=0;i<5;i++) progressRow.appendChild(h('div', {'class':'progress-dot'+(i<(this.round%5)?' done':'')}));
-
-  var teeSvg = document.createElement('div');
-  teeSvg.innerHTML = drawTee('excited', 62);
-  teeSvg.style.textAlign = 'center';
-
-  var bg = h('div', {'class':'forest-bg phonics-bg'},
-    progressRow,
-    h('div', {'class':'phonics-learn-card'},
-      teeSvg,
-      h('div', {'class':'phonics-letter'}, letter.l),
-      h('div', {'class':'phonics-emoji'},  letter.emoji),
-      h('div', {'class':'phonics-word'},   letter.l + ' is for ' + letter.word + '!')
-    )
-  );
-  this.container.appendChild(bg);
-
-  this.timers.push(setTimeout(function(){
-    speak(letter.l + '! ' + letter.l + ' is for ' + letter.word + '! ' + letter.word + ' starts with ' + letter.l + '!');
-  }, 300));
-  // Tap anywhere to advance early; auto-advance after 3.6s
-  var advTimer = setTimeout(function(){ self.renderQuiz(letter); }, 3600);
-  self.timers.push(advTimer);
-  bg.addEventListener('click', function(){
-    clearTimeout(advTimer);
-    self.renderQuiz(letter);
-  }, {once: true});
-};
-
-PhonicsModule.prototype.renderQuiz = function(target) {
-  if (!this.container) return;
-  this.container.innerHTML = '';
-  var self = this;
-  var pool = this.letters.filter(function(l){ return l.l !== target.l; });
-  var choices = this.shuffle([target].concat(this.shuffle(pool).slice(0,2)));
-
-  var progressRow = h('div', {'class':'progress-dots'});
-  for (var i=0;i<5;i++) progressRow.appendChild(h('div', {'class':'progress-dot'+(i<(this.round%5)?' done':'')}));
-
-  var correctBtn = null;
-  var choicesDiv = h('div', {'class':'phonics-choices'});
-  choices.forEach(function(c) {
-    var btn = h('button', {'class':'phonics-choice-btn'}, c.l);
-    if (c.l === target.l) correctBtn = btn;
-    btn.addEventListener('click', function(){
-      if (self.locked) return;
-      self.handleChoice(c.l === target.l, btn, target, correctBtn);
-    });
-    choicesDiv.appendChild(btn);
-  });
-
-  var bg = h('div', {'class':'forest-bg phonics-bg'},
-    progressRow,
-    h('div', {'class':'phonics-phase-label'}, target.word + ' starts with…'),
-    h('div', {'class':'phonics-emoji', style:{textAlign:'center'}}, target.emoji),
-    choicesDiv
-  );
-  this.container.appendChild(bg);
-
-  this.timers.push(setTimeout(function(){
-    speak('Which letter does ' + target.word + ' start with?');
-  }, 200));
-};
-
-PhonicsModule.prototype.handleChoice = function(correct, btn, target, correctBtn) {
-  var self = this;
-  this.locked = true;
-  if (correct) {
-    btn.classList.add('correct');
-    chime('correct');
-    speak('Yes! ' + target.l + ' is for ' + target.word + '!');
-    this.round++;
-    this.currentIdx++;
-    if (this.round % 5 === 0) {
-      this.timers.push(setTimeout(function(){ awardStar(self.id, function(){ showHome(); }); }, 1500));
-    } else {
-      this.timers.push(setTimeout(function(){ self.locked = false; self.renderLearn(); }, 1400));
-    }
-  } else {
-    btn.classList.add('wrong');
-    chime('wrong');
-    speak('Oops! ' + target.word + ' starts with ' + target.l + '!');
-    // After wrong flash, briefly highlight the correct button so child can self-correct
-    this.timers.push(setTimeout(function(){
-      btn.classList.remove('wrong');
-      if (correctBtn) {
-        correctBtn.classList.add('correct');
-        self.timers.push(setTimeout(function(){
-          correctBtn.classList.remove('correct');
-          self.locked = false;
-        }, 700));
-      } else {
-        self.locked = false;
-      }
-    }, 800));
-  }
-};
-
-// ── GAME 8: RHYME GARDEN ─────────────────────────────────────────────────────
-function RhymeModule() {
-  this.id = 'rhyme-garden';
-  this.title = 'Rhyme Garden';
-  this.emoji = '🎵';
-  this.color = '#fbcfe8';
-  this.timers = [];
-  this.container = null;
-  this.round = 0;
-  this.locked = false;
-  this.pairIdx = 0;
-  this.familyIdx = 0;
-  // Phase A: yes/no — do these rhyme?
-  this.pairs = [
-    { w1:'CAT',  e1:'🐱', w2:'HAT',   e2:'🎩', rhymes:true  },
-    { w1:'DOG',  e1:'🐶', w2:'HOG',   e2:'🐷', rhymes:true  },
-    { w1:'BEE',  e1:'🐝', w2:'TREE',  e2:'🌳', rhymes:true  },
-    { w1:'STAR', e1:'⭐',       w2:'CAR',   e2:'🚗', rhymes:true  },
-    { w1:'BEAR', e1:'🐻', w2:'PEAR',  e2:'🍐', rhymes:true  },
-    { w1:'MOON', e1:'🌙', w2:'SPOON', e2:'🥄', rhymes:true  },
-    { w1:'FISH', e1:'🐟', w2:'DISH',  e2:'🍽️', rhymes:true },
-    { w1:'CAKE', e1:'🎂', w2:'SNAKE', e2:'🐍', rhymes:true  },
-    { w1:'CAT',  e1:'🐱', w2:'DOG',   e2:'🐶', rhymes:false },
-    { w1:'SUN',  e1:'☀️', w2:'FROG',  e2:'🐸', rhymes:false },
-    { w1:'BUS',  e1:'🚌', w2:'MOON',  e2:'🌙', rhymes:false },
-    { w1:'BIRD', e1:'🐦', w2:'FISH',  e2:'🐟', rhymes:false },
-    { w1:'BEAR', e1:'🐻', w2:'TREE',  e2:'🌳', rhymes:false },
-  ];
-  // Phase B: pick the rhyming word (unlocks after first star)
-  this.families = [
-    { target:'CAT',  te:'🐱', choices:[{w:'HAT',  e:'🎩',r:true}, {w:'DOG', e:'🐶',r:false},{w:'SUN', e:'☀️',r:false}]},
-    { target:'BEE',  te:'🐝', choices:[{w:'TREE', e:'🌳',r:true}, {w:'CAR', e:'🚗',r:false},{w:'FISH',e:'🐟',r:false}]},
-    { target:'MOON', te:'🌙', choices:[{w:'SPOON',e:'🥄',r:true}, {w:'BIRD',e:'🐦',r:false},{w:'CAT', e:'🐱',r:false}]},
-    { target:'BEAR', te:'🐻', choices:[{w:'PEAR', e:'🍐',r:true}, {w:'FROG',e:'🐸',r:false},{w:'STAR',e:'⭐',      r:false}]},
-    { target:'STAR', te:'⭐',       choices:[{w:'CAR',  e:'🚗',r:true}, {w:'DOG', e:'🐶',r:false},{w:'BEE', e:'🐝',r:false}]},
-    { target:'CAKE', te:'🎂', choices:[{w:'SNAKE',e:'🐍',r:true}, {w:'MOON',e:'🌙',r:false},{w:'FISH',e:'🐟',r:false}]},
-  ];
-}
-
-RhymeModule.prototype.mount = function(container) {
-  this.container = container;
-  this.round = 0; this.pairIdx = 0; this.familyIdx = 0; this.locked = false;
-  this.mode = (state.stars[this.id] >= 1) ? 'B' : 'A';
-  // Shuffle so yes/no pairs are mixed — prevents learning "always press YES"
-  this.pairs = this.shuffle(this.pairs);
-  this.families = this.shuffle(this.families);
-  this.renderRound();
-};
-
-RhymeModule.prototype.unmount = function() {
-  this.timers.forEach(clearTimeout); this.timers = [];
-  speechSynthesis.cancel();
-  if (this.container) this.container.innerHTML = '';
-};
-
-RhymeModule.prototype.shuffle = function(arr) { return arr.slice().sort(function(){ return Math.random()-0.5; }); };
-
-RhymeModule.prototype.renderRound = function() {
-  if (this.mode === 'B') { this.renderPhaseB(); } else { this.renderPhaseA(); }
-};
-
-RhymeModule.prototype.renderPhaseA = function() {
-  if (!this.container) return;
-  this.container.innerHTML = '';
-  var self = this;
-  var pair = this.pairs[this.pairIdx % this.pairs.length];
-
-  var progressRow = h('div', {'class':'progress-dots'});
-  for (var i=0;i<5;i++) progressRow.appendChild(h('div', {'class':'progress-dot'+(i<(this.round%5)?' done':'')}));
-
-  var yesBtn = h('button', {'class':'rhyme-yn-btn', style:{background:'#bbf7d0'}}, '👍 Yes!');
-  var noBtn  = h('button', {'class':'rhyme-yn-btn', style:{background:'#fecaca'}}, '👎 No!');
-  yesBtn.addEventListener('click', function(){ if(!self.locked) self.handleYesNo(true, pair); });
-  noBtn.addEventListener('click',  function(){ if(!self.locked) self.handleYesNo(false, pair); });
-
-  var bg = h('div', {'class':'forest-bg rhyme-bg'},
-    progressRow,
-    h('div', {'class':'phonics-phase-label'}, 'Do these rhyme?'),
-    h('div', {'class':'rhyme-word-row'},
-      h('div', {'class':'rhyme-word-card'}, h('div', {'class':'rhyme-word-emoji'}, pair.e1), h('div', {'class':'rhyme-word-text'}, pair.w1)),
-      h('div', {'class':'rhyme-word-card'}, h('div', {'class':'rhyme-word-emoji'}, pair.e2), h('div', {'class':'rhyme-word-text'}, pair.w2))
-    ),
-    h('div', {'class':'rhyme-yn-row'}, yesBtn, noBtn)
-  );
-  this.container.appendChild(bg);
-
-  this.timers.push(setTimeout(function(){
-    speak(pair.w1 + '...' + pair.w2 + '. Do they rhyme?');
-  }, 400));
-};
-
-RhymeModule.prototype.handleYesNo = function(userSaidYes, pair) {
-  var self = this;
-  this.locked = true;
-  var correct = (userSaidYes === pair.rhymes);
-  if (correct) {
-    chime('correct');
-    speak(pair.rhymes ? pair.w1+' and '+pair.w2+' rhyme! Great job!' : 'Right! They do not rhyme!');
-    this.round++; this.pairIdx++;
-    if (this.round % 5 === 0) {
-      this.timers.push(setTimeout(function(){ awardStar(self.id, function(){ showHome(); }); }, 1500));
-    } else {
-      this.timers.push(setTimeout(function(){ self.locked = false; self.renderRound(); }, 1500));
-    }
-  } else {
-    chime('wrong');
-    // Educator mandate: replay both words and give the answer on wrong
-    speak('Listen again! '+pair.w1+'...'+pair.w2+'... '+(pair.rhymes ? 'They rhyme!' : 'They do not rhyme!'));
-    this.timers.push(setTimeout(function(){ self.locked = false; }, 2200));
-  }
-};
-
-RhymeModule.prototype.renderPhaseB = function() {
-  if (!this.container) return;
-  this.container.innerHTML = '';
-  var self = this;
-  var fam = this.families[this.familyIdx % this.families.length];
-  var choices = this.shuffle(fam.choices);
-
-  var progressRow = h('div', {'class':'progress-dots'});
-  for (var i=0;i<5;i++) progressRow.appendChild(h('div', {'class':'progress-dot'+(i<(this.round%5)?' done':'')}));
-
-  var pickRow = h('div', {'class':'rhyme-pick-choices'});
-  choices.forEach(function(c) {
-    var btn = h('div', {'class':'rhyme-pick-btn'},
-      h('div', {'class':'pick-emoji'}, c.e),
-      h('div', {'class':'pick-word'},  c.w)
-    );
-    btn.addEventListener('click', function(){
-      if (self.locked) return;
-      self.handlePickRhyme(c.r, btn, fam, c);
-    });
-    pickRow.appendChild(btn);
-  });
-
-  var bg = h('div', {'class':'forest-bg rhyme-bg'},
-    progressRow,
-    h('div', {'class':'rhyme-word-card', style:{margin:'0 auto', width:'min(100%, 200px)'}},
-      h('div', {'class':'rhyme-word-emoji', style:{textAlign:'center'}}, fam.te),
-      h('div', {'class':'rhyme-word-text',  style:{textAlign:'center'}}, fam.target)
-    ),
-    h('div', {'class':'phonics-phase-label'}, 'Which rhymes with '+fam.target+'?'),
-    pickRow
-  );
-  this.container.appendChild(bg);
-
-  this.timers.push(setTimeout(function(){
-    speak('Which word rhymes with ' + fam.target + '?');
-  }, 400));
-};
-
-RhymeModule.prototype.handlePickRhyme = function(correct, btn, fam, choice) {
-  var self = this;
-  this.locked = true;
-  if (correct) {
-    btn.classList.add('correct');
-    chime('correct');
-    speak(choice.w + ' and ' + fam.target + ' rhyme! Amazing!');
-    this.round++; this.familyIdx++;
-    if (this.round % 5 === 0) {
-      this.timers.push(setTimeout(function(){ awardStar(self.id, function(){ showHome(); }); }, 1500));
-    } else {
-      this.timers.push(setTimeout(function(){ self.locked = false; self.renderRound(); }, 1500));
-    }
-  } else {
-    btn.classList.add('wrong');
-    chime('wrong');
-    var correct = fam.choices.find(function(x){ return x.r; });
-    speak('Listen... '+fam.target+'... '+(correct?correct.w:'')+'... those rhyme! Try again!');
-    this.timers.push(setTimeout(function(){ btn.classList.remove('wrong'); self.locked = false; }, 1500));
-  }
-};
-
-// ── GAME 9: RHYTHM & BEAT ────────────────────────────────────────────────────
-function RhythmModule() {
-  this.id = 'rhythm-beat';
-  this.title = 'Rhythm & Beat';
-  this.emoji = '🥁';
-  this.color = '#ddd6fe';
-  this.timers = [];
-  this.container = null;
-  this.round = 0;
-  this.difficulty = 2;
-  this.currentPattern = [];
-  this.childTaps = [];
-  this.listening = false;
-  this.locked = false;
-  this.pads = [
-    { color:'#f87171', note:330, emoji:'🔴' },
-    { color:'#60a5fa', note:261, emoji:'🔵' },
-    { color:'#4ade80', note:392, emoji:'🟢' },
-  ];
-}
-
-RhythmModule.prototype.mount = function(container) {
-  this.container = container;
-  this.round = 0; this.difficulty = 2; this.listening = false; this.locked = false;
-  this.renderRound();
-};
-
-RhythmModule.prototype.unmount = function() {
-  this.timers.forEach(clearTimeout); this.timers = [];
-  speechSynthesis.cancel();
-  if (this.container) this.container.innerHTML = '';
-};
-
-RhythmModule.prototype.renderRound = function() {
-  if (!this.container) return;
-  this.container.innerHTML = '';
-  var self = this;
-  this.currentPattern = Array.from({length: this.difficulty}, function(){ return Math.floor(Math.random()*3); });
-  this.childTaps = [];
-  this.listening = false;
-
-  var progressRow = h('div', {'class':'progress-dots'});
-  for (var i=0;i<5;i++) progressRow.appendChild(h('div', {'class':'progress-dot'+(i<(this.round%5)?' done':'')}));
-
-  var teeSvg = document.createElement('div');
-  teeSvg.className = 'rhythm-tee-row'; teeSvg.id = 'rhythm-tee';
-  teeSvg.innerHTML = drawTee('excited', 72);
-
-  var statusEl = h('div', {'class':'rhythm-status'}, 'Watch Tee! 👀');
-  statusEl.id = 'rhythm-status';
-
-  var padsRow = h('div', {'class':'rhythm-pads-row'});
-  this.pads.forEach(function(pad, idx) {
-    var btn = h('div', {'class':'beat-pad', style:{background: pad.color}}, pad.emoji);
-    btn.id = 'beat-pad-' + idx;
-    btn.addEventListener('click', function(){
-      if (!self.listening || self.locked) return;
-      self.handleTap(idx, btn);
-    });
-    padsRow.appendChild(btn);
-  });
-
-  var bg = h('div', {'class':'forest-bg rhythm-bg'},
-    progressRow,
-    teeSvg,
-    statusEl,
-    padsRow
-  );
-  this.container.appendChild(bg);
-
-  this.timers.push(setTimeout(function(){
-    speak('Watch Tee! Copy the pattern!');
-    self.timers.push(setTimeout(function(){ self.playPattern(function(){ self.startListening(); }); }, 1300));
-  }, 300));
-};
-
-RhythmModule.prototype.playPattern = function(callback) {
-  var self = this;
-  var i = 0;
-  function step() {
-    if (i >= self.currentPattern.length) { self.timers.push(setTimeout(callback, 500)); return; }
-    var padIdx = self.currentPattern[i];
-    self.lightPad(padIdx, true);
-    playNote(self.pads[padIdx].note);
-    // Tee bounces on each beat so child sees Tee "doing" the tapping
-    var teeEl = document.getElementById('rhythm-tee');
-    if (teeEl) {
-      var svg = teeEl.querySelector('svg');
-      if (svg) { svg.classList.remove('tee-bounce'); void svg.offsetWidth; svg.classList.add('tee-bounce'); }
-    }
-    i++;
-    self.timers.push(setTimeout(function(){
-      self.lightPad(padIdx, false);
-      self.timers.push(setTimeout(step, 180));
-    }, 460));
-  }
-  step();
-};
-
-RhythmModule.prototype.lightPad = function(idx, on) {
-  var el = document.getElementById('beat-pad-' + idx);
-  if (el) { if (on) el.classList.add('lit'); else el.classList.remove('lit'); }
-};
-
-RhythmModule.prototype.startListening = function() {
-  this.childTaps = []; this.listening = true;
-  var s = document.getElementById('rhythm-status');
-  if (s) s.textContent = 'Your turn! 🎉';
-};
-
-RhythmModule.prototype.handleTap = function(padIdx, btn) {
-  if (!this.listening || this.locked) return;
-  var self = this;
-  playNote(this.pads[padIdx].note);
-  btn.classList.add('lit');
-  this.timers.push(setTimeout(function(){ btn.classList.remove('lit'); }, 200));
-  this.childTaps.push(padIdx);
-  if (this.childTaps.length >= this.currentPattern.length) {
-    this.listening = false; this.locked = true;
-    this.timers.push(setTimeout(function(){ self.checkPattern(); }, 300));
-  }
-};
-
-RhythmModule.prototype.checkPattern = function() {
-  var self = this;
-  var correct = this.currentPattern.every(function(v,i){ return v === self.childTaps[i]; });
-  if (correct) {
-    chime('correct');
-    speak('Amazing! You got it!');
-    this.round++;
-    if (this.round % 3 === 0 && this.difficulty < 4) this.difficulty++;
-    if (this.round % 5 === 0) {
-      this.timers.push(setTimeout(function(){ awardStar(self.id, function(){ showHome(); }); }, 1500));
-    } else {
-      this.timers.push(setTimeout(function(){ self.locked = false; self.renderRound(); }, 1500));
-    }
-  } else {
-    chime('wrong');
-    var s = document.getElementById('rhythm-status');
-    if (s) s.textContent = 'Watch again! 👀';
-    speak('Oops! Watch again!');
-    this.timers.push(setTimeout(function(){
-      self.locked = false; self.childTaps = []; self.listening = false;
-      self.playPattern(function(){ self.startListening(); });
-    }, 1100));
-  }
-};
-
 
 showHome();
 </script>
