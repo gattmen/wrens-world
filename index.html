@@ -31,6 +31,10 @@
   .game-card:active { transform: scale(0.96); }
   .game-card .card-emoji { font-size: 2.4rem; }
   .game-card .card-title { font-size: 1rem; font-weight: 700; color: var(--wren-soft); }
+  .game-card .card-meta { font-size: 0.82rem; font-weight: 800; color: rgba(125,110,135,0.72); text-transform: uppercase; letter-spacing: 0.5px; }
+  .difficulty-control { display: flex; gap: 8px; margin-top: 14px; }
+  .difficulty-btn { width: 46px; height: 38px; border-radius: 999px; border: 2px solid rgba(255,255,255,0.7); background: rgba(255,255,255,0.24); color: white; font-family: inherit; font-weight: 900; font-size: 1rem; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  .difficulty-btn.active { background: white; color: var(--wren-purple); }
 
   /* GAME SCREEN */
   #game-screen { display: none; flex-direction: column; min-height: 100vh; }
@@ -71,10 +75,7 @@
   .toggle.on::after { left: 27px; }
   .btn-danger { background: #ffb3b3; color: #c0392b; }
 
-  /* PROGRESS */
-  .progress-dots { display: flex; justify-content: center; gap: 8px; margin-bottom: 12px; }
-  .progress-dot { width: 14px; height: 14px; border-radius: 50%; background: #e0e0e0; transition: background 0.3s; }
-  .progress-dot.done { background: var(--wren-purple); }
+  .freeplay-badge { align-self: center; display: inline-flex; justify-content: center; margin: 0 auto 12px; padding: 6px 14px; border-radius: 999px; background: rgba(255,255,255,0.72); color: var(--wren-soft); font-size: 0.78rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.6px; }
 
   /* LETTER FOREST */
   .forest-bg { background: linear-gradient(180deg, #e8f5e9 0%, #c8e6c9 100%); border-radius: 24px; padding: 20px; min-height: 480px; }
@@ -190,10 +191,6 @@
   .gcb-name { font-size: 0.8rem; font-weight: 800; color: white; text-shadow: 0 1px 3px rgba(0,0,0,0.5); letter-spacing: 0.5px; }
   .gcb-name.dark-text { color: rgba(0,0,0,0.65); text-shadow: none; }
 
-  .garden-progress { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-  .garden-progress-label { font-size: 0.7rem; letter-spacing: 2px; color: var(--wren-soft); opacity: 0.5; text-transform: uppercase; }
-  .garden-stars { font-size: 1.3rem; letter-spacing: 3px; min-height: 1.4em; text-align: center; }
-
   @keyframes correctPulse {
     0%   { transform: scale(1); }
     40%  { transform: scale(1.1); }
@@ -294,6 +291,7 @@
     <div class="home-header">
       <h1 id="home-greeting">Hi Wren! &#x1F49C;</h1>
       <div class="header-tee" id="header-tee"></div>
+      <div class="difficulty-control" id="difficulty-control"></div>
     </div>
     <div class="home-body">
       <div class="game-grid" id="game-grid"></div>
@@ -415,8 +413,7 @@ function h(tag, attrs) {
 // ── STATE ─────────────────────────────────────
 var DEFAULT_STATE = {
   version: 2,
-  unlocks: { 'number-kingdom-1-10': true, 'color-garden-free-play': true },
-  settings: { speechEnabled: true, voiceName: null }
+  settings: { speechEnabled: true, voiceName: null, difficulty: 'medium' }
 };
 
 var state = loadState();
@@ -427,9 +424,8 @@ function loadState() {
     if (raw) {
       var s = JSON.parse(raw);
       if (s.version === 2) {
-        if (!s.unlocks) s.unlocks = DEFAULT_STATE.unlocks;
-        s.unlocks['number-kingdom-1-10'] = true;
-        s.unlocks['color-garden-free-play'] = true;
+        if (!s.settings) s.settings = {};
+        if (!s.settings.difficulty) s.settings.difficulty = 'medium';
         return s;
       }
     }
@@ -441,6 +437,47 @@ function saveState() {
   try { localStorage.setItem('wrensWorld', JSON.stringify(state)); } catch(e) {}
 }
 
+var DIFFICULTIES = [
+  { key:'low', label:'L', name:'Low' },
+  { key:'medium', label:'M', name:'Medium' },
+  { key:'high', label:'H', name:'High' },
+];
+
+function getDifficulty() {
+  var d = state.settings && state.settings.difficulty;
+  return d === 'low' || d === 'medium' || d === 'high' ? d : 'medium';
+}
+
+function setDifficulty(difficulty) {
+  state.settings.difficulty = difficulty;
+  saveState();
+}
+
+function difficultyName() {
+  var current = getDifficulty();
+  var meta = DIFFICULTIES.find(function(d){ return d.key === current; });
+  return meta ? meta.name : 'Medium';
+}
+
+function choiceCount() {
+  var d = getDifficulty();
+  return d === 'low' ? 2 : d === 'high' ? 4 : 3;
+}
+
+function numberMax() {
+  var d = getDifficulty();
+  return d === 'low' ? 3 : d === 'high' ? 10 : 5;
+}
+
+function alphabetMode() {
+  var d = getDifficulty();
+  return d === 'low' ? 'easy' : d === 'high' ? 'hard' : 'medium';
+}
+
+function colorCount() {
+  var d = getDifficulty();
+  return d === 'low' ? 4 : d === 'high' ? 10 : 7;
+}
 
 // ── TEE SVG ───────────────────────────────────
 function drawTee(mood, size) {
@@ -560,6 +597,19 @@ var GAMES = [
 
 function renderHome() {
   document.getElementById('header-tee').innerHTML = drawTee('happy', 90);
+  var difficultyControl = document.getElementById('difficulty-control');
+  difficultyControl.innerHTML = '';
+  DIFFICULTIES.forEach(function(d) {
+    var btn = h('button', {'class':'difficulty-btn' + (getDifficulty() === d.key ? ' active' : '')}, d.label);
+    btn.setAttribute('aria-label', d.name + ' difficulty');
+    btn.addEventListener('click', function(ev) {
+      ev.stopPropagation();
+      setDifficulty(d.key);
+      renderHome();
+      speak(d.name + ' mode');
+    });
+    difficultyControl.appendChild(btn);
+  });
   // greeting tap handler - reassign each render
   var greeting = document.getElementById('home-greeting');
   var newGreeting = greeting.cloneNode(true);
@@ -571,7 +621,8 @@ function renderHome() {
   GAMES.forEach(function(g) {
     var card = h('div', {'class': 'game-card', style:{borderColor: g.color}},
       h('div', {'class':'card-emoji'}, g.emoji),
-      h('div', {'class':'card-title'}, g.title)
+      h('div', {'class':'card-title'}, g.title),
+      h('div', {'class':'card-meta'}, difficultyName() + ' free play')
     );
     (function(id){ card.addEventListener('click', function(){ startGame(id); }); })(g.id);
     grid.appendChild(card);
@@ -601,6 +652,9 @@ function renderSettingsArea() {
     h('div', {'class':'settings-row'},
       h('span', {'class':'settings-label'}, '\uD83D\uDD0A Speech'),
       tog
+    ),
+    h('div', {'class':'settings-row'},
+      h('span', {'class':'settings-label'}, '\uD83C\uDFAF Level: '+difficultyName())
     )
   );
   area.appendChild(panel);
@@ -670,11 +724,10 @@ LetterForestModule.prototype.renderRound = function() {
   this.container.innerHTML = '';
   var self = this;
   var target = this.letters[this.round % this.letters.length];
-  var distractors = this.shuffle(this.letters.filter(function(l){ return l.letter !== target.letter; })).slice(0,2);
+  var distractors = this.shuffle(this.letters.filter(function(l){ return l.letter !== target.letter; })).slice(0, choiceCount() - 1);
   var choices = this.shuffle([target].concat(distractors));
 
-  var progressRow = h('div', {'class':'progress-dots'});
-  for (var i=0;i<5;i++) progressRow.appendChild(h('div', {'class':'progress-dot'+(i<(this.round%5)?' done':'')}));
+  var freePlayBadge = h('div', {'class':'freeplay-badge'}, difficultyName() + ' free play');
 
   var choicesDiv = h('div', {'class':'letter-choices', id:'lf-choices'});
   choices.forEach(function(c) {
@@ -692,7 +745,7 @@ LetterForestModule.prototype.renderRound = function() {
   teeSvg.style.textAlign = 'center'; teeSvg.style.marginTop = '8px';
 
   var bg = h('div', {'class':'forest-bg'},
-    progressRow,
+    freePlayBadge,
     h('div', {'class':'letter-display'},
       h('div', {'class':'big-letter'}, target.letter),
       h('div', {'class':'letter-word'}, target.emoji + ' ' + target.word)
@@ -741,11 +794,7 @@ LetterForestModule.prototype.handleChoice = function(correct, btn, target) {
     var treesRow = document.getElementById('lf-trees');
     if (treesRow) { treesRow.innerHTML = ''; self.buildTrees(treesRow); }
     self.round++;
-    if (self.round % 5 === 0) {
-      self.timers.push(setTimeout(showHome, 1500));
-    } else {
-      self.timers.push(setTimeout(function(){ self.renderRound(); }, 1500));
-    }
+    self.timers.push(setTimeout(function(){ self.renderRound(); }, 1500));
   } else {
     chime('wrong');
     speak('Try again!');
@@ -784,12 +833,11 @@ NumberKingdomModule.prototype.renderRound = function() {
   this.container.innerHTML = '';
   this.currentCount = 0; this.countedToys = [];
   var self = this;
-  var maxNum = state.unlocks['number-kingdom-1-10'] ? 10 : 5;
+  var maxNum = numberMax();
   this.targetNum = 1 + Math.floor(Math.random() * maxNum);
   var numWords = ['one','two','three','four','five','six','seven','eight','nine','ten'];
 
-  var progressRow = h('div', {'class':'progress-dots'});
-  for (var i=0;i<5;i++) progressRow.appendChild(h('div', {'class':'progress-dot'+(i<(self.round%5)?' done':'')}));
+  var freePlayBadge = h('div', {'class':'freeplay-badge'}, difficultyName() + ' free play');
 
   var countEl = h('div', {'class':'count-display', id:'nk-count'}, '0 / '+self.targetNum);
 
@@ -804,7 +852,8 @@ NumberKingdomModule.prototype.renderRound = function() {
     + '</svg>';
 
   var toysArea = h('div', {'class':'toys-area', id:'nk-toys'});
-  this.toys.forEach(function(t, i) {
+  var toyTotal = Math.max(self.targetNum, Math.min(8, maxNum));
+  Array.from({length: toyTotal}, function(_, i) { return self.toys[i % self.toys.length]; }).forEach(function(t, i) {
     var btn = h('button', {'class':'toy-btn', dataset:{idx:String(i)}}, t);
     btn.addEventListener('click', function(){ self.handleToyTap(i, btn); });
     toysArea.appendChild(btn);
@@ -815,7 +864,7 @@ NumberKingdomModule.prototype.renderRound = function() {
   teeSvg.style.textAlign = 'center'; teeSvg.style.marginTop = '4px';
 
   var bg = h('div', {'class':'kingdom-bg'},
-    progressRow,
+    freePlayBadge,
     h('div', {'class':'target-display'},
       h('div', {'class':'target-number'}, String(self.targetNum)),
       h('div', {'class':'target-label'}, 'toys for the baby!')
@@ -858,13 +907,8 @@ NumberKingdomModule.prototype.handleToyTap = function(idx, btn) {
 };
 
 NumberKingdomModule.prototype.nextRound = function() {
-  var self = this;
   this.round++;
-  if (this.round % 5 === 0) {
-    showHome();
-  } else {
-    this.renderRound();
-  }
+  this.renderRound();
 };
 
 // ── GAME 3: FEELINGS GARDEN ───────────────────
@@ -925,11 +969,10 @@ FeelingsGardenModule.prototype.renderPhaseA = function() {
   this.container.innerHTML = '';
   var self = this;
   var target = this.feelings[this.round % this.feelings.length];
-  var others = this.shuffle(this.feelings.filter(function(f){ return f.name !== target.name; })).slice(0,2);
+  var others = this.shuffle(this.feelings.filter(function(f){ return f.name !== target.name; })).slice(0, choiceCount() - 1);
   var choices = this.shuffle([target].concat(others));
 
-  var progressRow = h('div', {'class':'progress-dots'});
-  for (var i=0;i<5;i++) progressRow.appendChild(h('div', {'class':'progress-dot'+(i<(self.round%5)?' done':'')}));
+  var freePlayBadge = h('div', {'class':'freeplay-badge'}, difficultyName() + ' free play');
 
   var faceDiv = document.createElement('div');
   faceDiv.innerHTML = self.makeFaceSVG(target.name);
@@ -942,7 +985,7 @@ FeelingsGardenModule.prototype.renderPhaseA = function() {
   });
 
   var bg = h('div', {'class':'garden-bg'},
-    progressRow,
+    freePlayBadge,
     h('div', {style:{textAlign:'center',marginBottom:'6px'}},
       h('p', {style:{fontSize:'1rem',color:'var(--wren-soft)',fontWeight:'700'}}, 'How is this friend feeling?')
     ),
@@ -1003,11 +1046,7 @@ FeelingsGardenModule.prototype.handleHelpChoice = function(opt) {
   speak('Great idea!');
   showToast('Great idea! ' + opt.emoji);
   self.round++;
-  if (self.round % 5 === 0) {
-    self.timers.push(setTimeout(showHome, 1500));
-  } else {
-    self.timers.push(setTimeout(function(){ self.renderPhaseA(); }, 1500));
-  }
+  self.timers.push(setTimeout(function(){ self.renderPhaseA(); }, 1500));
 };
 
 // ── GAME 4: COLOR GARDEN (enhanced — 10 colors, Tee, free play, repeat) ──
@@ -1020,7 +1059,7 @@ function ColorGardenModule() {
   this.container = null;
   this.score = 0;          // correct answers this session (resets on mount)
   this.gardenTarget = null;
-  this.freePlay = false;
+  this.freePlay = true;
   this.locked = false;
   this.colors = [
     { es:'Rojo',     en:'Red',     key:'rojo',     flower:'\uD83C\uDF39', dark:false },
@@ -1038,8 +1077,12 @@ function ColorGardenModule() {
 
 ColorGardenModule.prototype.mount = function(container) {
   this.container = container;
-  this.score = 0; this.gardenTarget = null; this.freePlay = false; this.locked = false;
+  this.score = 0; this.gardenTarget = null; this.freePlay = true; this.locked = false;
   this.render();
+};
+
+ColorGardenModule.prototype.activeColors = function() {
+  return this.colors.slice(0, colorCount());
 };
 
 ColorGardenModule.prototype.unmount = function() {
@@ -1059,8 +1102,8 @@ ColorGardenModule.prototype.render = function() {
   teeBuddyDiv.id = 'cg-tee';
   teeBuddyDiv.innerHTML = drawTee('happy', 52);
 
-  var questionEl = h('div', {'class':'garden-question', id:'cg-question'}, 'Tap Start to play!');
-  var subtextEl  = h('div', {'class':'garden-subtext',  id:'cg-subtext' }, 'Press Start and listen for the color');
+  var questionEl = h('div', {'class':'garden-question', id:'cg-question'}, 'Tap any color!');
+  var subtextEl  = h('div', {'class':'garden-subtext',  id:'cg-subtext' }, 'Hear the Spanish name');
 
   var headerCard = h('div', {'class':'wg-card'},
     h('div', {'class':'wg-header'},
@@ -1071,32 +1114,15 @@ ColorGardenModule.prototype.render = function() {
       teeBuddyDiv
     ),
     h('div', {'class':'garden-prompt-card'},
-      h('div', {'class':'garden-label'}, 'Spanish Color Time'),
+      h('div', {'class':'garden-label'}, difficultyName() + ' free play'),
       questionEl,
       subtextEl
-    ),
-    h('div', {'class':'garden-controls'},
-      (function(){
-        var btn = h('button', {'class':'wg-pill-btn', id:'cg-start'}, '\u25B6 Start');
-        btn.addEventListener('click', function(){ self.startRound(); });
-        return btn;
-      })(),
-      (function(){
-        var btn = h('button', {'class':'wg-pill-btn', id:'cg-repeat'}, '\uD83D\uDD01 Repeat');
-        btn.addEventListener('click', function(){ self.repeatPrompt(); });
-        return btn;
-      })(),
-      (function(){
-        var btn = h('button', {'class':'wg-pill-btn', id:'cg-freeplay'}, '\uD83C\uDF38 Free Play: Off');
-        btn.addEventListener('click', function(){ self.toggleFreePlay(btn); });
-        return btn;
-      })()
     )
   );
 
   // ── 3-column color grid ──
   var grid = h('div', {'class':'garden-color-grid', id:'cg-grid'});
-  this.colors.forEach(function(c) {
+  this.activeColors().forEach(function(c) {
     var btn = h('button', {'class':'garden-color-btn ' + c.key, dataset:{key:c.key}},
       h('span', {'class':'gcb-flower'}, c.flower),
       h('span', {'class':'gcb-name' + (c.dark ? ' dark-text' : '')}, c.es)
@@ -1105,27 +1131,12 @@ ColorGardenModule.prototype.render = function() {
     grid.appendChild(btn);
   });
 
-  // ── Progress row ──
-  var progressEl = h('div', {'class':'garden-progress'},
-    h('div', {'class':'garden-progress-label'}, 'Flowers Grown'),
-    h('div', {'class':'garden-stars', id:'cg-stars'}, '\uD83C\uDF31 \uD83C\uDF31 \uD83C\uDF31 \uD83C\uDF31 \uD83C\uDF31')
-  );
-
-  var bg = h('div', {'class':'color-garden-bg'}, headerCard, grid, progressEl);
+  var bg = h('div', {'class':'color-garden-bg'}, headerCard, grid);
   this.container.appendChild(bg);
 
-  this.updateStars();
   this.timers.push(setTimeout(function(){
-    speak("Hi Wren! Let's learn colors! Tap Start when you're ready!");
+    speak("Hi Wren! Welcome to the Color Garden! Tap any color!");
   }, 300));
-};
-
-ColorGardenModule.prototype.updateStars = function() {
-  var el = document.getElementById('cg-stars');
-  if (!el) return;
-  var count = this.score % 5;
-  var flowers = ['\uD83C\uDF39','\uD83E\uDD8B','\uD83C\uDF3C','\uD83C\uDF40','\uD83C\uDF38'];
-  el.textContent = Array.from({length:5}, function(_,i){ return i < count ? flowers[i] : '\uD83C\uDF31'; }).join(' ');
 };
 
 ColorGardenModule.prototype.teeDance = function() {
@@ -1138,7 +1149,7 @@ ColorGardenModule.prototype.teeDance = function() {
 
 ColorGardenModule.prototype.pickTarget = function() {
   var self = this;
-  var pool = this.colors.filter(function(c){ return !self.gardenTarget || c.key !== self.gardenTarget.key; });
+  var pool = this.activeColors().filter(function(c){ return !self.gardenTarget || c.key !== self.gardenTarget.key; });
   return pool[Math.floor(Math.random() * pool.length)];
 };
 
@@ -1157,19 +1168,6 @@ ColorGardenModule.prototype.repeatPrompt = function() {
   if (!this.gardenTarget) return;
   this.teeDance();
   speak(this.gardenTarget.es, 'es-ES', 0.75);
-};
-
-ColorGardenModule.prototype.toggleFreePlay = function(btn) {
-  this.freePlay = !this.freePlay;
-  btn.textContent = this.freePlay ? '\uD83C\uDF38 Free Play: On' : '\uD83C\uDF38 Free Play: Off';
-  btn.classList.toggle('on', this.freePlay);
-  if (this.freePlay) {
-    this.gardenTarget = null; this.locked = false;
-    var qEl = document.getElementById('cg-question');
-    var sEl = document.getElementById('cg-subtext');
-    if (qEl) qEl.textContent = 'Tap any color!';
-    if (sEl) sEl.textContent = 'Hear the Spanish name';
-  }
 };
 
 ColorGardenModule.prototype.handleColorTap = function(colorData, btn) {
@@ -1201,20 +1199,10 @@ ColorGardenModule.prototype.handleColorTap = function(colorData, btn) {
     var sEl = document.getElementById('cg-subtext');
     if (qEl) qEl.textContent = colorData.es;
     if (sEl) sEl.textContent = colorData.en + '!';
-    this.updateStars();
-
-    // 5 correct answers = complete session
-    if (this.score > 0 && this.score % 5 === 0) {
-      self.timers.push(setTimeout(function(){
-        btn.classList.remove('correct');
-        showHome();
-      }, 2000));
-    } else {
-      self.timers.push(setTimeout(function(){
-        btn.classList.remove('correct');
-        self.startRound();
-      }, 1800));
-    }
+    self.timers.push(setTimeout(function(){
+      btn.classList.remove('correct');
+      self.startRound();
+    }, 1800));
   } else {
     chime('wrong');
     this.teeDance();
@@ -1251,6 +1239,16 @@ function MusicMakerModule() {
   ];
 }
 
+MusicMakerModule.prototype.activeKeys = function() {
+  var d = getDifficulty();
+  return this.keys.slice(0, d === 'low' ? 3 : d === 'high' ? 5 : 4);
+};
+
+MusicMakerModule.prototype.activeSongs = function() {
+  var d = getDifficulty();
+  return this.songs.slice(0, d === 'low' ? 1 : d === 'high' ? 3 : 2);
+};
+
 MusicMakerModule.prototype.mount = function(container) {
   this.container = container; this.tapsPlayed = 0; this.renderFreePlay();
 };
@@ -1266,7 +1264,7 @@ MusicMakerModule.prototype.renderFreePlay = function() {
   this.container.innerHTML = '';
   var self = this;
 
-  var feedbackEl = h('div', {'class':'music-feedback', id:'mm-feedback'}, 'Tap the keys to make music! \uD83C\uDFB5');
+  var feedbackEl = h('div', {'class':'music-feedback', id:'mm-feedback'}, difficultyName() + ' free play \uD83C\uDFB5');
 
   var songBtn = h('button', {'class':'song-mode-btn', id:'mm-song-btn'}, 'Play a Song \uD83C\uDFB5');
   if (this.tapsPlayed >= 3) songBtn.style.display = 'block';
@@ -1276,7 +1274,7 @@ MusicMakerModule.prototype.renderFreePlay = function() {
   doneBtn.addEventListener('click', function(){ self.handleDone(); });
 
   var pianoArea = h('div', {'class':'piano-area'});
-  this.keys.forEach(function(k, i) {
+  this.activeKeys().forEach(function(k, i) {
     var btn = h('button', {'class':'piano-key', style:{background:k.color}}, k.label);
     btn.addEventListener('click', function(){
       playNote(k.freq);
@@ -1317,13 +1315,14 @@ MusicMakerModule.prototype.renderSongMode = function() {
   if (!this.container) return;
   this.container.innerHTML = '';
   var self = this;
-  var song = this.songs[this.currentSong % this.songs.length];
+  var songs = this.activeSongs();
+  var song = songs[this.currentSong % songs.length];
   this.userTaps = 0;
 
   var feedbackEl = h('div', {'class':'music-feedback', id:'mm-feedback'}, 'Song: '+song.name+' \uD83C\uDFB5');
 
   var pianoArea = h('div', {'class':'piano-area', id:'mm-piano'});
-  this.keys.forEach(function(k, i) {
+  this.activeKeys().forEach(function(k, i) {
     var btn = h('button', {'class':'piano-key', style:{background:k.color}}, k.label);
     btn.addEventListener('click', function(){
       playNote(k.freq);
@@ -1336,12 +1335,8 @@ MusicMakerModule.prototype.renderSongMode = function() {
         speak('Beautiful music, Wren!');
         if (feedbackEl) feedbackEl.textContent = 'Beautiful music! \uD83C\uDF1F';
         self.songsCompleted++;
-        if (self.songsCompleted >= 3) {
-          self.timers.push(setTimeout(showHome, 1500));
-        } else {
-          self.currentSong++;
-          self.timers.push(setTimeout(function(){ self.renderSongMode(); }, 2000));
-        }
+        self.currentSong++;
+        self.timers.push(setTimeout(function(){ self.renderSongMode(); }, 2000));
       }
     });
     pianoArea.appendChild(btn);
@@ -1388,7 +1383,7 @@ class AlphabetGame {
     this.color = '#e8d5f5';
     this.timers = [];
     this.container = null;
-    this.mode = 'easy';         // 'easy' | 'medium' | 'hard'
+    this.mode = alphabetMode();         // 'easy' | 'medium' | 'hard'
     this.currentIdx = 0;
     this.locked = false;
     this.correct = 0;           // correct answers this session
@@ -1431,7 +1426,7 @@ class AlphabetGame {
 
   mount(container) {
     this.container = container;
-    this.mode = 'easy';
+    this.mode = alphabetMode();
     this.locked = false;
     this.correct = 0;
     this.render();
@@ -1465,34 +1460,9 @@ class AlphabetGame {
     const bg = document.createElement('div');
     bg.className = 'alphabet-bg';
 
-    // ── Difficulty bar ──
-    const modeBar = document.createElement('div');
-    modeBar.className = 'alpha-mode-bar';
-    const modes = [
-      { key:'easy',   label:'\u2B50 Easy'    },
-      { key:'medium', label:'\uD83C\uDF19 Medium' },
-      { key:'hard',   label:'\uD83C\uDFA7 Hard'   },
-    ];
-    modes.forEach(m => {
-      const btn = document.createElement('button');
-      btn.className = 'alpha-mode-btn' + (this.mode === m.key ? ' active' : '');
-      btn.textContent = m.label;
-      const onSelect = () => {
-        this.mode = m.key;
-        modeBar.querySelectorAll('.alpha-mode-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        modeLabel.textContent = this.MODE_META[this.mode].label;
-        this._nextQuestion();
-      };
-      btn.addEventListener('click', onSelect);
-      btn.addEventListener('touchstart', e => { e.preventDefault(); onSelect(); }, { passive: false });
-      modeBar.appendChild(btn);
-    });
-    bg.appendChild(modeBar);
-
     const modeLabel = document.createElement('div');
-    modeLabel.className = 'alpha-mode-label';
-    modeLabel.textContent = this.MODE_META[this.mode].label;
+    modeLabel.className = 'freeplay-badge';
+    modeLabel.textContent = difficultyName() + ' free play';
     bg.appendChild(modeLabel);
 
     // ── Card area ──
@@ -1533,7 +1503,7 @@ class AlphabetGame {
     this.currentIdx = idx;
 
     const correct = this.LETTERS[idx];
-    const others  = this._shuffle(this.LETTERS.filter((_, i) => i !== idx)).slice(0, 3);
+    const others  = this._shuffle(this.LETTERS.filter((_, i) => i !== idx)).slice(0, choiceCount() - 1);
     const choices = this._shuffle([correct, ...others]);
 
     // ── Render card visuals ──
@@ -1606,14 +1576,7 @@ class AlphabetGame {
       btn.classList.add('correct');
       speak('Yes!! ' + correctData.l + ' for ' + correctData.word + '! Amazing Wren!');
 
-      if (this.correct >= 10) {
-        // Session complete — award star and return home
-        this._t(() => {
-          this.shell.complete(this.id);
-        }, 1800);
-      } else {
-        this._t(() => this._nextQuestion(), 1600);
-      }
+      this._t(() => this._nextQuestion(), 1600);
     } else {
       chime('wrong');
       btn.classList.add('wrong');
