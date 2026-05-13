@@ -894,9 +894,25 @@ LetterForestModule.prototype.renderRound = function() {
   if (!this.container) return;
   this.container.innerHTML = '';
   var self = this;
+  var mode = getDifficulty(); // read at render time so parent changes apply
   var target = this.letters[this.round % this.letters.length];
   var distractors = this.shuffle(this.letters.filter(function(l){ return l.letter !== target.letter; })).slice(0, adaptiveChoices(self.streak) - 1);
   var choices = this.shuffle([target].concat(distractors));
+
+  // Display area — what the child can see
+  var displayChildren = [];
+  if (mode === 'low') {
+    // Show letter + emoji + word
+    displayChildren.push(h('div', {'class':'big-letter'}, target.letter));
+    displayChildren.push(h('div', {'class':'letter-word'}, target.emoji + ' ' + target.word));
+  } else if (mode === 'medium') {
+    // Show emoji + word only — child hears the letter, must recall it
+    displayChildren.push(h('div', {'class':'letter-word', style:{fontSize:'2rem',marginBottom:'8px'}}, target.emoji));
+    displayChildren.push(h('div', {'class':'letter-word'}, target.word));
+  } else {
+    // Hard: show only emoji — child must know letter from word alone
+    displayChildren.push(h('div', {'class':'letter-word', style:{fontSize:'3.5rem'}}, target.emoji));
+  }
 
   var choicesDiv = h('div', {'class':'letter-choices', id:'lf-choices'});
   choices.forEach(function(c) {
@@ -913,18 +929,20 @@ LetterForestModule.prototype.renderRound = function() {
   teeSvg.id = 'lf-tee';
   teeSvg.style.textAlign = 'center'; teeSvg.style.marginTop = '8px';
 
-  var bg = h('div', {'class':'forest-bg'},
-    h('div', {'class':'letter-display'},
-      h('div', {'class':'big-letter'}, target.letter),
-      h('div', {'class':'letter-word'}, target.emoji + ' ' + target.word)
-    ),
-    choicesDiv,
-    treesRow,
-    teeSvg
-  );
+  var displayDiv = h.apply(null, ['div', {'class':'letter-display'}].concat(displayChildren));
+
+  var bg = h('div', {'class':'forest-bg'}, displayDiv, choicesDiv, treesRow, teeSvg);
   this.container.appendChild(bg);
+
+  // Audio prompt varies by mode
   this.timers.push(setTimeout(function(){
-    speak('Can you find the letter '+target.letter+'? '+target.letter+' is for '+target.word+'!');
+    if (mode === 'low') {
+      speak('Can you find the letter ' + target.letter + '? ' + target.letter + ' is for ' + target.word + '!');
+    } else if (mode === 'medium') {
+      speak(target.letter + ' is for ' + target.word + '! Find the letter ' + target.letter + '!');
+    } else {
+      speak('What letter does ' + target.word + ' start with?');
+    }
   }, 300));
 };
 
@@ -954,7 +972,7 @@ LetterForestModule.prototype.handleChoice = function(correct, btn, target) {
   var self = this;
   if (correct) {
     chime('correct');
-    speak('Yes! '+target.letter+' is for '+target.word+'!');
+    speak('Yes! ' + target.letter + '! ' + target.letter + ' is for ' + target.word + '!');
     btn.style.background = '#c8e6c9'; btn.style.borderColor = '#66bb6a';
     self.streak = Math.min(self.streak + 1, 8);
     self.leaves++;
