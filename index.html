@@ -279,6 +279,142 @@
   /* TOAST */
   .feedback-toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: white; border-radius: 20px; padding: 10px 22px; font-size: 1.1rem; font-weight: 700; color: var(--wren-soft); box-shadow: 0 4px 16px rgba(0,0,0,0.15); z-index: 150; pointer-events: none; animation: toastPop 1.8s ease forwards; }
   @keyframes toastPop { 0% { opacity:0; transform:translateX(-50%) translateY(10px); } 15% { opacity:1; transform:translateX(-50%) translateY(0); } 75% { opacity:1; } 100% { opacity:0; transform:translateX(-50%) translateY(-10px); } }
+
+  /* ── LOCATION SCENES ────────────────────────── */
+  /* Floating card rule: game content lifts above scene */
+  #game-screen[data-scene] .forest-bg,
+  #game-screen[data-scene] .kingdom-bg,
+  #game-screen[data-scene] .music-bg,
+  #game-screen[data-scene] .alphabet-bg {
+    background: rgba(255,255,255,0.9) !important;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  }
+
+  /* PAINT STUDIO */
+  #game-screen[data-scene="color-garden"] {
+    background:
+      repeating-linear-gradient(175deg, rgba(90,55,20,0.22) 0px, rgba(90,55,20,0.22) 2px, transparent 2px, transparent 44px),
+      linear-gradient(180deg, #4E2B1A 0%, #7B4F2B 55%, #6B3E1C 100%);
+  }
+  #game-screen[data-scene="color-garden"] #game-container { padding: 10px; }
+  .paint-easel {
+    background: rgba(255,252,245,0.96); border: 3px solid #5D3A1A;
+    border-radius: 20px; padding: 14px; margin-bottom: 12px;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.9);
+    position: relative;
+  }
+  .paint-easel::before {
+    content: ''; position: absolute; top: -18px; left: 50%; transform: translateX(-50%);
+    width: 60px; height: 8px; background: #5D3A1A; border-radius: 4px 4px 0 0;
+  }
+  .paint-splat {
+    position: absolute; border-radius: 60% 40% 55% 45% / 45% 55% 40% 60%;
+    opacity: 0.55; pointer-events: none;
+  }
+  .paint-swatch-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .paint-swatch {
+    min-height: 72px; border-radius: 14px 14px 6px 6px;
+    border: 3px solid #111827; cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+    padding-bottom: 8px;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.25);
+    transition: transform 0.1s; position: relative;
+  }
+  .paint-swatch:active { transform: scale(0.93); }
+  .paint-swatch .swatch-name { font-size: 0.82rem; font-weight: 900; color: white; text-shadow: 0 1px 4px rgba(0,0,0,0.7); letter-spacing: 0.5px; }
+  .paint-swatch .swatch-name.dark-text { color: rgba(0,0,0,0.75); text-shadow: none; }
+  .paint-swatch.rojo    { background: #e53935; }
+  .paint-swatch.azul    { background: #1e88e5; }
+  .paint-swatch.amarillo{ background: #fdd835; }
+  .paint-swatch.verde   { background: #43a047; }
+  .paint-swatch.rosa    { background: #e91e8c; }
+  .paint-swatch.morado  { background: #8e24aa; }
+  .paint-swatch.naranja { background: #fb8c00; }
+  .paint-swatch.negro   { background: #263238; }
+  .paint-swatch.blanco  { background: #f0f0f0; }
+  .paint-swatch.marron  { background: #6d4c41; }
+  .paint-swatch.correct { animation: swatchPop 0.65s ease; border-color: #66bb6a !important; box-shadow: 0 0 22px rgba(102,187,106,0.7) !important; }
+  .paint-swatch.wrong   { animation: swatchWobble 0.45s ease; }
+  @keyframes swatchPop    { 0%{transform:scale(1)} 35%{transform:scale(1.18)} 65%{transform:scale(0.96)} 100%{transform:scale(1)} }
+  @keyframes swatchWobble { 0%,100%{transform:rotate(0)} 25%{transform:rotate(-6deg)} 75%{transform:rotate(6deg)} }
+
+  /* MIX IT MODE */
+  .mix-blobs { display: flex; justify-content: center; align-items: center; gap: 16px; margin: 16px 0; }
+  .mix-blob { width: 72px; height: 72px; border-radius: 60% 40% 55% 45% / 45% 55% 40% 60%; border: 3px solid #111827; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 900; color: white; text-shadow: 0 1px 3px rgba(0,0,0,0.6); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+  .mix-blob.dark-text { color: rgba(0,0,0,0.65); text-shadow: none; }
+  .mix-plus { font-size: 2rem; font-weight: 900; color: rgba(255,255,255,0.8); }
+  .mix-arrow { font-size: 2rem; color: rgba(255,255,255,0.7); text-align: center; margin: 4px 0; }
+  .mix-jar-grid { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+  .mix-jar {
+    width: 72px; height: 90px; border: 3px solid #111827; border-radius: 8px 8px 12px 12px;
+    cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+    padding-bottom: 6px; box-shadow: 0 4px 0 rgba(0,0,0,0.3); transition: transform 0.1s;
+    position: relative;
+  }
+  .mix-jar::before { content: ''; position: absolute; top: -8px; left: 50%; transform: translateX(-50%); width: 30px; height: 10px; border-radius: 4px 4px 0 0; border: 3px solid #111827; background: inherit; }
+  .mix-jar:active { transform: scale(0.93); }
+  .mix-jar .swatch-name { font-size: 0.72rem; font-weight: 900; color: white; text-shadow: 0 1px 3px rgba(0,0,0,0.6); }
+  .mix-jar .swatch-name.dark-text { color: rgba(0,0,0,0.7); text-shadow: none; }
+  .mix-jar.correct { animation: swatchPop 0.65s ease; border-color: #66bb6a !important; }
+  .mix-jar.wrong   { animation: swatchWobble 0.4s ease; }
+  .mix-merge-anim  { animation: mergePop 0.8s ease; }
+  @keyframes mergePop { 0%{transform:scale(0.7) rotate(-5deg);opacity:0} 60%{transform:scale(1.15) rotate(3deg);opacity:1} 100%{transform:scale(1) rotate(0);opacity:1} }
+  .mix-mode-btn { font-size: 0.85rem; font-weight: 800; padding: 6px 14px; border-radius: 20px; border: 2px solid rgba(255,255,255,0.5); background: rgba(255,255,255,0.2); color: white; cursor: pointer; margin-top: 4px; min-height: 36px; }
+  .mix-mode-btn.active { background: rgba(255,255,255,0.9); color: #5D3A1A; }
+
+  /* LETTER FOREST SCENE */
+  #game-screen[data-scene="letter-forest"] {
+    background:
+      radial-gradient(ellipse at 25% 15%, rgba(255,255,180,0.18) 0%, transparent 40%),
+      radial-gradient(ellipse at 75% 20%, rgba(255,255,180,0.12) 0%, transparent 35%),
+      linear-gradient(180deg, #1B4D20 0%, #2E6B30 35%, #3A8040 70%, #4CAF50 100%);
+  }
+  #game-screen[data-scene="letter-forest"]::after {
+    content: '🌳🌲🌳🌲🌳'; font-size: 2.8rem; letter-spacing: -4px;
+    position: absolute; bottom: 0; left: 0; right: 0; text-align: center;
+    opacity: 0.45; pointer-events: none; line-height: 1;
+  }
+
+  /* NUMBER KINGDOM SCENE */
+  #game-screen[data-scene="number-kingdom"] {
+    background:
+      repeating-linear-gradient(90deg, rgba(100,100,140,0.1) 0, rgba(100,100,140,0.1) 1px, transparent 1px, transparent 50px),
+      repeating-linear-gradient(0deg, rgba(80,80,120,0.08) 0, rgba(80,80,120,0.08) 1px, transparent 1px, transparent 50px),
+      linear-gradient(180deg, #0D2B6B 0%, #1565C0 40%, #5C3317 100%);
+  }
+  #game-screen[data-scene="number-kingdom"]::after {
+    content: '🏰'; font-size: 5rem;
+    position: absolute; bottom: 0; right: 8px; opacity: 0.3; pointer-events: none; line-height: 1;
+  }
+
+  /* MUSIC MAKER SCENE */
+  #game-screen[data-scene="music-maker"] {
+    background:
+      radial-gradient(ellipse at 50% 110%, rgba(255,210,80,0.35) 0%, transparent 55%),
+      repeating-linear-gradient(0deg, rgba(80,50,10,0.22) 0px, rgba(80,50,10,0.22) 2px, transparent 2px, transparent 36px),
+      linear-gradient(180deg, #120800 0%, #3E2000 50%, #6B3800 100%);
+  }
+  #game-screen[data-scene="music-maker"]::after {
+    content: '✨🎵✨'; font-size: 1.6rem;
+    position: absolute; top: 10px; left: 0; right: 0; text-align: center;
+    opacity: 0.4; pointer-events: none;
+  }
+
+  /* WREN'S ALPHABET SCENE */
+  #game-screen[data-scene="wren-alphabet"] {
+    background:
+      radial-gradient(ellipse at 50% 25%, rgba(255,200,80,0.28) 0%, transparent 45%),
+      linear-gradient(180deg, #00332B 0%, #00574B 50%, #00332B 100%);
+  }
+  #game-screen[data-scene="wren-alphabet"]::after {
+    content: '📚📖📚'; font-size: 2.2rem;
+    position: absolute; bottom: 0; left: 0; right: 0; text-align: center;
+    opacity: 0.3; pointer-events: none; line-height: 1;
+  }
+  #game-screen[data-scene="wren-alphabet"] { position: relative; overflow: hidden; }
+  #game-screen[data-scene="letter-forest"] { position: relative; overflow: hidden; }
+  #game-screen[data-scene="number-kingdom"] { position: relative; overflow: hidden; }
+  #game-screen[data-scene="music-maker"] { position: relative; overflow: hidden; }
 </style>
 </head>
 <body>
@@ -562,6 +698,7 @@ var gameTitleBar = document.getElementById('game-title-bar');
 
 function showHome() {
   if (currentModule) { currentModule.unmount(); currentModule = null; }
+  gameScreen.removeAttribute('data-scene');
   gameScreen.style.display = 'none';
   homeScreen.style.display = 'flex';
   renderHome();
@@ -571,6 +708,7 @@ function showHome() {
 function launchGame(module) {
   homeScreen.style.display = 'none';
   gameScreen.style.display = 'flex';
+  gameScreen.setAttribute('data-scene', module.id);
   gameTitleBar.textContent = module.emoji + ' ' + module.title;
   gameContainer.innerHTML = '';
   gameContainer.style.background = '';
@@ -961,19 +1099,27 @@ function ColorGardenModule() {
   this.container = null;
   this.score = 0;
   this.streak = 0;
+  this.mixStreak = 0;
   this.gardenTarget = null;
   this.locked = false;
+  this.mixMode = false;
   this.colors = [
-    { es:'Rojo',     en:'Red',     key:'rojo',     flower:'\uD83C\uDF39', dark:false },
-    { es:'Azul',     en:'Blue',    key:'azul',     flower:'\uD83E\uDD8B', dark:false },
-    { es:'Amarillo', en:'Yellow',  key:'amarillo', flower:'\uD83C\uDF3C', dark:true  },
-    { es:'Verde',    en:'Green',   key:'verde',    flower:'\uD83C\uDF40', dark:true  },
-    { es:'Rosa',     en:'Pink',    key:'rosa',     flower:'\uD83C\uDF38', dark:false },
-    { es:'Morado',   en:'Purple',  key:'morado',   flower:'\uD83D\uDD2E', dark:false },
-    { es:'Naranja',  en:'Orange',  key:'naranja',  flower:'\uD83C\uDF4A', dark:false },
-    { es:'Negro',    en:'Black',   key:'negro',    flower:'\uD83D\uDDA4', dark:false },
-    { es:'Blanco',   en:'White',   key:'blanco',   flower:'\uD83E\uDD0D', dark:true  },
-    { es:'Marr\u00F3n', en:'Brown', key:'marron',  flower:'\uD83D\uDC3B', dark:false },
+    { es:'Rojo',     en:'Red',     key:'rojo',     dark:false },
+    { es:'Azul',     en:'Blue',    key:'azul',     dark:false },
+    { es:'Amarillo', en:'Yellow',  key:'amarillo', dark:true  },
+    { es:'Verde',    en:'Green',   key:'verde',    dark:true  },
+    { es:'Rosa',     en:'Pink',    key:'rosa',     dark:false },
+    { es:'Morado',   en:'Purple',  key:'morado',   dark:false },
+    { es:'Naranja',  en:'Orange',  key:'naranja',  dark:false },
+    { es:'Negro',    en:'Black',   key:'negro',    dark:false },
+    { es:'Blanco',   en:'White',   key:'blanco',   dark:true  },
+    { es:'Marr\u00F3n', en:'Brown', key:'marron',  dark:false },
+  ];
+  this.mixPairs = [
+    { a:'rojo', aEs:'Rojo', aEn:'Red', b:'azul',     bEs:'Azul',     bEn:'Blue',   r:'morado',   rEs:'Morado',   rEn:'Purple' },
+    { a:'rojo', aEs:'Rojo', aEn:'Red', b:'amarillo',  bEs:'Amarillo', bEn:'Yellow', r:'naranja',  rEs:'Naranja',  rEn:'Orange' },
+    { a:'azul', aEs:'Azul', aEn:'Blue',b:'amarillo',  bEs:'Amarillo', bEn:'Yellow', r:'verde',    rEs:'Verde',    rEn:'Green'  },
+    { a:'rojo', aEs:'Rojo', aEn:'Red', b:'blanco',    bEs:'Blanco',   bEn:'White',  r:'rosa',     rEs:'Rosa',     rEn:'Pink'   },
   ];
 }
 
@@ -998,47 +1144,123 @@ ColorGardenModule.prototype.render = function() {
   this.container.innerHTML = '';
   var self = this;
 
-  // ── Header card (Tee + title + prompt) ──
   var teeBuddyDiv = document.createElement('div');
-  teeBuddyDiv.className = 'tee-buddy';
-  teeBuddyDiv.id = 'cg-tee';
-  teeBuddyDiv.innerHTML = drawTee('happy', 52);
+  teeBuddyDiv.className = 'tee-buddy'; teeBuddyDiv.id = 'cg-tee';
+  teeBuddyDiv.innerHTML = drawTee('happy', 48);
+
+  var mixBtn = h('button', {'class':'mix-mode-btn' + (self.mixMode ? ' active' : '')}, '🎨 Mix It');
+  mixBtn.addEventListener('click', function() {
+    self.mixMode = !self.mixMode;
+    if (self.mixMode) self.renderMixIt(); else self.render();
+  });
 
   var questionEl = h('div', {'class':'garden-question', id:'cg-question'}, 'Tap any color!');
-  var subtextEl  = h('div', {'class':'garden-subtext',  id:'cg-subtext' }, 'Hear the Spanish name');
+  var subtextEl  = h('div', {'class':'garden-subtext',  id:'cg-subtext' }, '');
 
-  var headerCard = h('div', {'class':'wg-card'},
-    h('div', {'class':'wg-header'},
-      h('div', {},
-        h('h1', {}, 'Paint Studio 🎨'),
-        h('p',  {}, 'Tap the color you hear!')
-      ),
+  var easel = h('div', {'class':'paint-easel'},
+    h('div', {style:{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'8px'}},
+      h('div', {}, questionEl, subtextEl),
       teeBuddyDiv
     ),
-    h('div', {'class':'garden-prompt-card'},
-      questionEl,
-      subtextEl
-    )
+    mixBtn
   );
 
-  // ── 3-column color grid ──
-  var grid = h('div', {'class':'garden-color-grid', id:'cg-grid'});
+  // Paint splatter accents (decorative)
+  var splats = [
+    {top:'8%',left:'4%',w:'22px',h:'18px',bg:'#e53935'},
+    {top:'12%',right:'6%',w:'18px',h:'22px',bg:'#1e88e5'},
+    {bottom:'6%',left:'8%',w:'26px',h:'20px',bg:'#fdd835'},
+    {bottom:'10%',right:'4%',w:'20px',h:'24px',bg:'#8e24aa'},
+  ];
+  splats.forEach(function(s) {
+    var el = document.createElement('div');
+    el.className = 'paint-splat';
+    Object.assign(el.style, {position:'absolute',width:s.w,height:s.h,background:s.bg,
+      top:s.top||'',left:s.left||'',right:s.right||'',bottom:s.bottom||''});
+    self.container.style.position = 'relative';
+    self.container.appendChild(el);
+  });
+
+  var grid = h('div', {'class':'paint-swatch-grid', id:'cg-grid'});
   this.activeColors().forEach(function(c) {
-    var btn = h('button', {'class':'garden-color-btn ' + c.key, dataset:{key:c.key}},
-      h('span', {'class':'gcb-flower'}, c.flower),
-      h('span', {'class':'gcb-name' + (c.dark ? ' dark-text' : '')}, c.es)
+    var btn = h('button', {'class':'paint-swatch ' + c.key, dataset:{key:c.key}},
+      h('span', {'class':'swatch-name' + (c.dark ? ' dark-text' : '')}, c.es)
     );
     btn.addEventListener('click', function(){ self.handleColorTap(c, btn); });
     grid.appendChild(btn);
   });
 
-  var bg = h('div', {'class':'color-garden-bg'}, headerCard, grid);
-  this.container.appendChild(bg);
+  this.container.appendChild(easel);
+  this.container.appendChild(grid);
 
   this.timers.push(setTimeout(function(){
     speak("Welcome to the Paint Studio! Let's learn colors!");
     self.timers.push(setTimeout(function(){ self.startRound(); }, 1200));
   }, 300));
+};
+
+ColorGardenModule.prototype.renderMixIt = function() {
+  if (!this.container) return;
+  this.container.innerHTML = '';
+  var self = this;
+  var pair = self.mixPairs[Math.floor(Math.random() * self.mixPairs.length)];
+  var nChoices = Math.min(2 + Math.floor(self.mixStreak / 3), 4);
+  var foils = self.colors.filter(function(c){ return c.key !== pair.r; });
+  foils = foils.slice().sort(function(){ return Math.random()-0.5; }).slice(0, nChoices - 1);
+  var choices = [self.colors.find(function(c){ return c.key === pair.r; })].concat(foils).sort(function(){ return Math.random()-0.5; });
+
+  var mixBtn = h('button', {'class':'mix-mode-btn active'}, '🎨 Mix It');
+  mixBtn.addEventListener('click', function() { self.mixMode = false; self.render(); });
+
+  var blobA = h('div', {'class':'mix-blob ' + pair.a + (self.colors.find(function(c){return c.key===pair.a;}).dark?' dark-text':'')}, pair.aEs);
+  var blobB = h('div', {'class':'mix-blob ' + pair.b + (self.colors.find(function(c){return c.key===pair.b;}).dark?' dark-text':'')}, pair.bEs);
+
+  var blobsDiv = h('div', {'class':'mix-blobs'}, blobA, h('div', {'class':'mix-plus'}, '+'), blobB);
+
+  var arrowEl = h('div', {'class':'mix-arrow'}, '↓');
+
+  var jarGrid = h('div', {'class':'mix-jar-grid', id:'mix-jars'});
+  choices.forEach(function(c) {
+    if (!c) return;
+    var jar = h('div', {'class':'mix-jar ' + c.key},
+      h('span', {'class':'swatch-name' + (c.dark ? ' dark-text' : '')}, c.es)
+    );
+    jar.addEventListener('click', function(){ self.handleMixTap(c.key === pair.r, jar, pair); });
+    jarGrid.appendChild(jar);
+  });
+
+  var easel = h('div', {'class':'paint-easel'},
+    h('div', {style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'8px'}},
+      h('div', {style:{fontSize:'1rem',fontWeight:'800',color:'var(--wren-soft)'}}, 'What do they make?'),
+      mixBtn
+    ),
+    blobsDiv, arrowEl, jarGrid
+  );
+
+  self.container.appendChild(easel);
+  self.timers.push(setTimeout(function(){
+    speak(pair.aEn + ' and ' + pair.bEn + '... what do they make?');
+  }, 300));
+};
+
+ColorGardenModule.prototype.handleMixTap = function(correct, jar, pair) {
+  var self = this;
+  if (correct) {
+    self.mixStreak++;
+    chime('correct');
+    jar.classList.add('correct', 'mix-merge-anim');
+    speak(pair.aEn + ' and ' + pair.bEn + ' make... ' + pair.rEn + '!');
+    self.timers.push(setTimeout(function(){
+      spawnConfetti();
+      self.timers.push(setTimeout(function(){ self.renderMixIt(); }, 800));
+    }, 1200));
+  } else {
+    self.mixStreak = Math.max(self.mixStreak - 1, 0);
+    chime('wrong');
+    jar.classList.add('wrong');
+    speak('Try again!');
+    self.timers.push(setTimeout(function(){ jar.classList.remove('wrong'); }, 500));
+  }
 };
 
 ColorGardenModule.prototype.teeDance = function() {
