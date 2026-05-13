@@ -911,7 +911,7 @@ LetterForestModule.prototype.renderRound = function() {
   var self = this;
   var mode = getDifficulty(); // read at render time so parent changes apply
   var target = this.letters[this.round % this.letters.length];
-  var distractors = this.shuffle(this.letters.filter(function(l){ return l.letter !== target.letter; })).slice(0, adaptiveChoices(self.streak) - 1);
+  var distractors = this.shuffle(this.letters.filter(function(l){ return l.letter !== target.letter; })).slice(0, 2);
   var choices = this.shuffle([target].concat(distractors));
 
   // Display area — what the child can see
