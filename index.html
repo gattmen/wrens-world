@@ -751,6 +751,21 @@ function renderHome() {
   greeting.parentNode.replaceChild(newGreeting, greeting);
   newGreeting.addEventListener('click', handleSettingsTap);
 
+  // Difficulty buttons — always visible below header
+  var diffCtrl = document.getElementById('difficulty-control');
+  diffCtrl.style.display = 'flex';
+  diffCtrl.innerHTML = '';
+  DIFFICULTIES.forEach(function(d) {
+    var btn = h('button', {'class':'difficulty-btn'+(getDifficulty()===d.key?' active':'')}, d.name);
+    btn.addEventListener('click', function(ev) {
+      ev.stopPropagation();
+      setDifficulty(d.key);
+      renderHome();
+      speak(d.name);
+    });
+    diffCtrl.appendChild(btn);
+  });
+
   var grid = document.getElementById('game-grid');
   grid.innerHTML = '';
   GAMES.forEach(function(g) {
