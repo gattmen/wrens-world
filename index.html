@@ -931,7 +931,7 @@ LetterForestModule.prototype.renderRound = function() {
 
   var choicesDiv = h('div', {'class':'letter-choices', id:'lf-choices'});
   choices.forEach(function(c) {
-    var btn = h('button', {'class':'letter-btn', style:{color: c===target?'#7d3f8c':'#8b6914'}}, c.letter);
+    var btn = h('button', {'class':'letter-btn'}, c.letter);
     btn.addEventListener('click', function(){ self.handleChoice(c===target, btn, target); });
     choicesDiv.appendChild(btn);
   });
